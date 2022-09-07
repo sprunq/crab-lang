@@ -1,7 +1,7 @@
 use crate::token::{lookup_ident, Token};
 
 pub struct Lexer {
-    input: String,
+    pub input: String,
     position: usize,      // current position in input (points to current char)
     read_position: usize, // current reading position in input (after current char)
     character: char,      // current char under examination
@@ -238,22 +238,21 @@ pub mod texer_test {
     #[test]
     fn test_function_lex() {
         let input = r#"
-        let add = fn(x, y){
-            x + y;
+        function add(x, y){
+            return x + y;
         };
         let result = add(five, ten);
         "#;
         let expected = vec![
-            Token::Let,
-            Token::Identifier("add".to_string()),
-            Token::Assign,
             Token::Function,
+            Token::Identifier("add".to_string()),
             Token::LParenthesis,
             Token::Identifier("x".to_string()),
             Token::Comma,
             Token::Identifier("y".to_string()),
             Token::RParenthesis,
             Token::LBrace,
+            Token::Return,
             Token::Identifier("x".to_string()),
             Token::Plus,
             Token::Identifier("y".to_string()),
