@@ -37,6 +37,18 @@ impl Parser {
         self.peek_token = self.lexer.next_token();
     }
 
+    fn expect_peek(
+        &mut self,
+        token: Token,
+        expected: fn(Token) -> ParserError,
+    ) -> Result<(), ParserError> {
+        if self.peek_token != token {
+            return Err(expected(self.peek_token.clone()));
+        }
+        self.next_token();
+        Ok(())
+    }
+
     pub fn parse_program(&mut self) -> Program {
         let mut statements = vec![];
         while self.current_token != Token::Eof {
@@ -53,6 +65,7 @@ impl Parser {
     fn parse_statement(&mut self) -> Result<Statement, ParserError> {
         match self.current_token {
             Token::Let => self.parse_let_statement(),
+            Token::Return => self.parse_return_statement(),
             _ => Err(ParserError::ExpectedSemicolon(Token::Assign)),
         }
     }
@@ -79,16 +92,17 @@ impl Parser {
         return Ok(Statement::Let(name, expr));
     }
 
-    fn expect_peek(
-        &mut self,
-        token: Token,
-        expected: fn(Token) -> ParserError,
-    ) -> Result<(), ParserError> {
-        if self.peek_token != token {
-            return Err(expected(self.peek_token.clone()));
-        }
+    fn parse_return_statement(&mut self) -> Result<Statement, ParserError> {
         self.next_token();
-        Ok(())
+        if self.current_token == Token::Semicolon {
+            return Ok(Statement::Return(None));
+        }
+
+        while self.current_token != Token::Semicolon {
+            self.next_token();
+        }
+
+        return Ok(Statement::Return(None));
     }
 }
 
@@ -116,7 +130,7 @@ pub enum ParserError {
 
 #[cfg(test)]
 pub mod parser_test {
-    use crate::ast::{Expression, Infix, Statement};
+    use crate::ast::{Expression, Statement};
     use crate::lexer::Lexer;
     use crate::parser::Parser;
 
@@ -131,7 +145,7 @@ pub mod parser_test {
     }
 
     #[test]
-    fn let_statement() {
+    fn parse_let_stmt() {
         let input = "
         let x = 5;
         let y = 10.23;
@@ -144,7 +158,28 @@ pub mod parser_test {
         let expected = vec![
             Statement::Let("x".to_string(), Expression::IntegerLiteral(5)),
             Statement::Let("y".to_string(), Expression::FloatLiteral(10.23)),
-            Statement::Let("x".to_string(), Expression::IntegerLiteral(43243243)),
+            Statement::Let("foobar".to_string(), Expression::IntegerLiteral(43243243)),
+        ];
+
+        check_parser_errors(&parser);
+        assert_eq!(expected, program.statements,);
+    }
+
+    #[test]
+    fn parse_return_stmt() {
+        let input = "
+        return;
+        return 5;
+        return 10.43;
+        ";
+        let lexer = Lexer::new(input.to_owned());
+        let mut parser = Parser::new(lexer);
+
+        let program = parser.parse_program();
+        let expected = vec![
+            Statement::Return(None),
+            Statement::Return(Some(Expression::IntegerLiteral(5))),
+            Statement::Return(Some(Expression::FloatLiteral(10.43))),
         ];
 
         check_parser_errors(&parser);

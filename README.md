@@ -1,3 +1,7 @@
+<p align="center">
+  <img height="150" src="res/crab_logo.png">
+</p>
+
 # Crab
 
 ## Language

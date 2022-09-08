@@ -18,6 +18,7 @@ impl fmt::Display for Program {
 pub enum Statement {
     Let(String, Expression),
     Return(Option<Expression>),
+    Expression(Expression),
 }
 
 impl fmt::Display for Statement {
@@ -26,6 +27,7 @@ impl fmt::Display for Statement {
             Statement::Let(ident, expr) => write!(f, "let {} = {}", ident, expr),
             Statement::Return(Some(expr)) => write!(f, "return {}", expr),
             Statement::Return(None) => write!(f, "return"),
+            Statement::Expression(expr) => write!(f, "{}", expr),
         }
     }
 }
