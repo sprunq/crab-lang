@@ -35,6 +35,7 @@ impl fmt::Display for Statement {
 #[derive(Debug, PartialEq, Clone)]
 pub enum Expression {
     Infix(Infix, Box<Expression>, Box<Expression>),
+    Prefix(Prefix, Box<Expression>),
     Identifier(String),
     IntegerLiteral(i64),
     FloatLiteral(f64),
@@ -49,6 +50,7 @@ impl fmt::Display for Expression {
             Expression::IntegerLiteral(int) => write!(f, "{}", int),
             Expression::FloatLiteral(float) => write!(f, "{}", float),
             Expression::Empty => write!(f, ""),
+            Expression::Prefix(prefix, expr) => write!(f, "({}{})", prefix, expr),
         }
     }
 }
@@ -76,6 +78,21 @@ impl fmt::Display for Infix {
             Infix::Minus => write!(f, "-"),
             Infix::Asterisk => write!(f, "*"),
             Infix::Slash => write!(f, "/"),
+        }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub enum Prefix {
+    Bang,
+    Minus,
+}
+
+impl fmt::Display for Prefix {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            Prefix::Bang => write!(f, "!"),
+            Prefix::Minus => write!(f, "-"),
         }
     }
 }
