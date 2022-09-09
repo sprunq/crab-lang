@@ -14,7 +14,7 @@ impl fmt::Display for Program {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum Statement {
     Let(String, Expression),
     Return(Option<Expression>),
@@ -39,7 +39,11 @@ pub enum Expression {
     Identifier(String),
     IntegerLiteral(i64),
     FloatLiteral(f64),
+    BooleanLiteral(bool),
+    If(Box<Expression>, BlockStatement, Option<BlockStatement>),
     Empty,
+    FunctionLiteral(Vec<String>, BlockStatement),
+    Call(Box<Expression>, Vec<Expression>),
 }
 
 impl fmt::Display for Expression {
@@ -51,7 +55,41 @@ impl fmt::Display for Expression {
             Expression::FloatLiteral(float) => write!(f, "{}", float),
             Expression::Empty => write!(f, ""),
             Expression::Prefix(prefix, expr) => write!(f, "({}{})", prefix, expr),
+            Expression::BooleanLiteral(bool) => write!(f, "{}", bool),
+            Expression::If(condition, consequence, alternative) => {
+                write!(f, "if {} {}", condition, consequence)?;
+                if let Some(alt) = alternative {
+                    write!(f, " else {}", alt)?;
+                }
+                Ok(())
+            }
+            Expression::FunctionLiteral(parameters, body) => {
+                write!(f, "function({}) {}", parameters.join(", "), body)
+            }
+            Expression::Call(function, arguments) => {
+                write!(f, "{}({})", function, {
+                    arguments
+                        .iter()
+                        .map(|a| a.to_string())
+                        .collect::<Vec<String>>()
+                        .join(", ")
+                })
+            }
         }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone)]
+pub struct BlockStatement {
+    pub statements: Vec<Statement>,
+}
+
+impl fmt::Display for BlockStatement {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        for stmt in &self.statements {
+            write!(f, "{{ {} }}", stmt)?;
+        }
+        Ok(())
     }
 }
 

@@ -46,7 +46,7 @@ impl fmt::Display for Token {
             Token::RParenthesis => write!(f, ")"),
             Token::LBrace => write!(f, "{{"),
             Token::RBrace => write!(f, "}}"),
-            Token::Function => write!(f, "function"),
+            Token::Function => write!(f, "fn"),
             Token::Let => write!(f, "let"),
             Token::Minus => write!(f, "-"),
             Token::Bang => write!(f, "!"),
