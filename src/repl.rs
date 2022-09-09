@@ -1,13 +1,10 @@
 use std::io::{self, Write};
 extern crate crab_lib;
-use crab_lib::{
-    lexer::Lexer,
-    parser::{parse_error::ParseErr, Parser},
-};
-use ferris_says::say;
+use crab_lib::{lexer::Lexer, parser::Parser};
+
+use crate::print_parser_errors_fmt_string;
 
 pub fn start() {
-    println!("{}", "Welcome to crab-lang v0.1\n");
     loop {
         let input = ask_input(">>");
         let lexer = Lexer::new(input);
@@ -22,23 +19,6 @@ pub fn start() {
         println!("{}", program);
         println!("{}", "\n")
     }
-}
-
-fn print_parser_errors_fmt_string(errors: &[ParseErr]) -> String {
-    let errors = errors
-        .iter()
-        .map(|a| a.to_string())
-        .collect::<Vec<String>>()
-        .join(", \n- ");
-
-    let input = format!(
-        "Looks like I encountered some errors during parsing: \n- {}",
-        errors
-    );
-    let mut vec = Vec::new();
-    say(input.as_bytes(), 100, &mut vec).unwrap();
-    let actual = std::str::from_utf8(&vec).unwrap();
-    return actual.to_string();
 }
 
 fn ask_input(prompt: &str) -> String {

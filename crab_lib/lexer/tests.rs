@@ -5,7 +5,7 @@ pub mod tests {
     fn assert_lex_against(input: &str, expected: Vec<Token>) {
         let mut lexer = Lexer::new(input.to_owned());
         for expected_token in expected.iter() {
-            let actual_token = lexer.next_token();
+            let actual_token = lexer.next_token().0;
             assert_eq!(
                 expected_token, &actual_token,
                 "expected {} found {}",

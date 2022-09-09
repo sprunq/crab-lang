@@ -9,4 +9,5 @@ path = "crab_lib/lib.rs"
 
 
 [dependencies]
+ansi_term = "0.12.1"
 ferris-says = "0.2.1"

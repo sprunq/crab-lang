@@ -1,61 +1,81 @@
 use std::fmt;
 
-use crate::lexer::token::Token;
+use crate::lexer::{token::Token, Position};
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub enum ParseErr {
-    ExpectedPrefixToken(Token),
-    ExpectedInfixToken(Token),
-    ExpectedIdentifierToken(Token),
-    ExpectedBoolToken(Token),
-    ExpectedIntegerToken(Token),
-    ExpectedFloatToken(Token),
-    ExpectedStringToken(Token),
-    ExpectedLparen(Token),
-    ExpectedRparen(Token),
-    ExpectedLbrace(Token),
-    ExpectedRbrace(Token),
-    ExpectedRbracket(Token),
-    ExpectedAssign(Token),
-    ExpectedSemicolon(Token),
-    ExpectedComma(Token),
-    ExpectedColon(Token),
-    ParseInt(String),
-    ParseFloat(String),
+    ExpectedPrefixToken(Token, Position),
+    ExpectedInfixToken(Token, Position),
+    ExpectedIdentifierToken(Token, Position),
+    ExpectedBoolToken(Token, Position),
+    ExpectedIntegerToken(Token, Position),
+    ExpectedFloatToken(Token, Position),
+    ExpectedStringToken(Token, Position),
+    ExpectedLparen(Token, Position),
+    ExpectedRparen(Token, Position),
+    ExpectedLbrace(Token, Position),
+    ExpectedRbrace(Token, Position),
+    ExpectedRbracket(Token, Position),
+    ExpectedAssign(Token, Position),
+    ExpectedSemicolon(Token, Position),
+    ExpectedComma(Token, Position),
+    ExpectedColon(Token, Position),
+    ParseInt(String, Position),
+    ParseFloat(String, Position),
 }
 
 impl fmt::Display for ParseErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self {
-            ParseErr::ExpectedPrefixToken(val) => write!(f, "{}", format_token("Prefix", val)),
-            ParseErr::ExpectedInfixToken(val) => write!(f, "{}", format_token("Infix", val)),
-            ParseErr::ExpectedIdentifierToken(val) => {
-                write!(f, "{}", format_token("Indetifier", val))
+            ParseErr::ExpectedPrefixToken(val, pos) => {
+                write!(f, "{}", format_token("Prefix", val, pos))
             }
-            ParseErr::ExpectedBoolToken(val) => write!(f, "{}", format_token("Boolean", val)),
-            ParseErr::ExpectedIntegerToken(val) => {
-                write!(f, "{}", format_token("Integer", val))
+            ParseErr::ExpectedInfixToken(val, pos) => {
+                write!(f, "{}", format_token("Infix", val, pos))
             }
-            ParseErr::ExpectedFloatToken(val) => write!(f, "{}", format_token("Float", val)),
-            ParseErr::ExpectedStringToken(val) => write!(f, "{}", format_token("String", val)),
-            ParseErr::ExpectedLparen(val) => write!(f, "{}", format_token("LParen", val)),
-            ParseErr::ExpectedRparen(val) => write!(f, "{}", format_token("RParen", val)),
-            ParseErr::ExpectedLbrace(val) => write!(f, "{}", format_token("LBrace", val)),
-            ParseErr::ExpectedRbrace(val) => write!(f, "{}", format_token("RBrace", val)),
-            ParseErr::ExpectedRbracket(val) => write!(f, "{}", format_token("RBracket", val)),
-            ParseErr::ExpectedAssign(val) => write!(f, "{}", format_token("Assign", val)),
-            ParseErr::ExpectedSemicolon(val) => write!(f, "{}", format_token("Semicolon", val)),
-            ParseErr::ExpectedComma(val) => write!(f, "{}", format_token("Comma", val)),
-            ParseErr::ExpectedColon(val) => write!(f, "{}", format_token("Colon", val)),
-            ParseErr::ParseInt(val) => write!(f, "{}", format_str("Int", val)),
-            ParseErr::ParseFloat(val) => write!(f, "{}", format_str("Float", val)),
+            ParseErr::ExpectedIdentifierToken(val, pos) => {
+                write!(f, "{}", format_token("Indetifier", val, pos))
+            }
+            ParseErr::ExpectedBoolToken(val, pos) => {
+                write!(f, "{}", format_token("Boolean", val, pos))
+            }
+            ParseErr::ExpectedIntegerToken(val, pos) => {
+                write!(f, "{}", format_token("Integer", val, pos))
+            }
+            ParseErr::ExpectedFloatToken(val, pos) => {
+                write!(f, "{}", format_token("Float", val, pos))
+            }
+            ParseErr::ExpectedStringToken(val, pos) => {
+                write!(f, "{}", format_token("String", val, pos))
+            }
+            ParseErr::ExpectedLparen(val, pos) => write!(f, "{}", format_token("LParen", val, pos)),
+            ParseErr::ExpectedRparen(val, pos) => write!(f, "{}", format_token("RParen", val, pos)),
+            ParseErr::ExpectedLbrace(val, pos) => write!(f, "{}", format_token("LBrace", val, pos)),
+            ParseErr::ExpectedRbrace(val, pos) => write!(f, "{}", format_token("RBrace", val, pos)),
+            ParseErr::ExpectedRbracket(val, pos) => {
+                write!(f, "{}", format_token("RBracket", val, pos))
+            }
+            ParseErr::ExpectedAssign(val, pos) => write!(f, "{}", format_token("Assign", val, pos)),
+            ParseErr::ExpectedSemicolon(val, pos) => {
+                write!(f, "{}", format_token("Semicolon", val, pos))
+            }
+            ParseErr::ExpectedComma(val, pos) => write!(f, "{}", format_token("Comma", val, pos)),
+            ParseErr::ExpectedColon(val, pos) => write!(f, "{}", format_token("Colon", val, pos)),
+            ParseErr::ParseInt(val, pos) => write!(f, "{}", format_str("Int", val, pos)),
+            ParseErr::ParseFloat(val, pos) => write!(f, "{}", format_str("Float", val, pos)),
         }
     }
 }
-fn format_token(expected_token: &str, error_token: &Token) -> String {
-    format!("Expected '{}' but got '{:?}'", expected_token, error_token)
+fn format_token(expected_token: &str, error_token: &Token, pos: &Position) -> String {
+    format!(
+        "Expected '{}' but got '{:?}' at position {}:{}",
+        expected_token, error_token, pos.line, pos.column
+    )
 }
 
-fn format_str(expected_token: &str, error_token: &str) -> String {
-    format!("Expected '{}' but got '{:?}'", expected_token, error_token)
+fn format_str(expected_token: &str, error_token: &str, pos: &Position) -> String {
+    format!(
+        "Expected '{}' but got '{:?}'at position {}:{}",
+        expected_token, error_token, pos.line, pos.column
+    )
 }

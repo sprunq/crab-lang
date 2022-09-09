@@ -1,4 +1,4 @@
-use crate::lexer::{token::Token, Lexer};
+use crate::lexer::{token::Token, Lexer, Position};
 
 use self::{
     ast::{BlockStatement, Expression, Infix, Prefix, Program, Statement},
@@ -19,6 +19,7 @@ pub struct Parser {
     current_token: Token,
     peek_token: Token,
     errors: Vec<ParseErr>,
+    peek_token_pos: Position,
 }
 
 impl Parser {
@@ -28,6 +29,7 @@ impl Parser {
             current_token: Token::Illegal,
             peek_token: Token::Illegal,
             errors: vec![],
+            peek_token_pos: Position { line: 0, column: 0 },
         };
         parser.next_token();
         parser.next_token();
@@ -44,16 +46,16 @@ impl Parser {
 
     pub fn next_token(&mut self) {
         self.current_token = self.peek_token.clone();
-        self.peek_token = self.lexer.next_token();
+        (self.peek_token, self.peek_token_pos) = self.lexer.next_token();
     }
 
     fn expect_peek(
         &mut self,
         token: Token,
-        expected: fn(Token) -> ParseErr,
+        expected: fn(Token, Position) -> ParseErr,
     ) -> Result<(), ParseErr> {
         if self.peek_token != token {
-            return Err(expected(self.peek_token.clone()));
+            return Err(expected(self.peek_token.clone(), self.peek_token_pos));
         }
         self.next_token();
         Ok(())
@@ -113,7 +115,10 @@ impl Parser {
         match token {
             Token::Bang => Ok(Prefix::Bang),
             Token::Minus => Ok(Prefix::Minus),
-            token => Err(ParseErr::ExpectedPrefixToken(token.clone())),
+            token => Err(ParseErr::ExpectedPrefixToken(
+                token.clone(),
+                self.peek_token_pos,
+            )),
         }
     }
 
@@ -133,9 +138,9 @@ impl Parser {
     }
 
     fn parse_expression(&mut self, precedence: Precedence) -> Result<Expression, ParseErr> {
-        let prefix = self
-            .get_prefix_fn()
-            .ok_or_else(|| ParseErr::ExpectedPrefixToken(self.current_token.clone()))?;
+        let prefix = self.get_prefix_fn().ok_or_else(|| {
+            ParseErr::ExpectedPrefixToken(self.current_token.clone(), self.peek_token_pos)
+        })?;
         let mut left_expr = prefix(self)?;
 
         while self.peek_token != Token::Semicolon
@@ -195,6 +200,7 @@ impl Parser {
         } else {
             Err(ParseErr::ExpectedIdentifierToken(
                 self.current_token.clone(),
+                self.peek_token_pos,
             ))
         }
     }
@@ -208,7 +214,9 @@ impl Parser {
 
     fn parse_infix_expression(&mut self, left: Expression) -> Result<Expression, ParseErr> {
         let (precedence, infix) = self.get_infix_token(&self.current_token);
-        let i = infix.ok_or_else(|| ParseErr::ExpectedInfixToken(self.current_token.clone()))?;
+        let i = infix.ok_or_else(|| {
+            ParseErr::ExpectedInfixToken(self.current_token.clone(), self.peek_token_pos)
+        })?;
         self.next_token();
         let right = self.parse_expression(precedence)?;
 
@@ -290,7 +298,7 @@ impl Parser {
     fn parse_expressions(
         &mut self,
         closing_token: Token,
-        expected: fn(Token) -> ParseErr,
+        expected: fn(Token, Position) -> ParseErr,
     ) -> Result<Vec<Expression>, ParseErr> {
         let mut exps = vec![];
         if self.peek_token == closing_token {
@@ -313,10 +321,13 @@ impl Parser {
         if let Token::Int(int) = &self.current_token {
             match int.parse() {
                 Ok(value) => Ok(Expression::IntegerLiteral(value)),
-                Err(_) => Err(ParseErr::ParseInt(int.to_string())),
+                Err(_) => Err(ParseErr::ParseInt(int.to_string(), self.peek_token_pos)),
             }
         } else {
-            Err(ParseErr::ExpectedIntegerToken(self.current_token.clone()))
+            Err(ParseErr::ExpectedIntegerToken(
+                self.current_token.clone(),
+                self.peek_token_pos,
+            ))
         }
     }
 
@@ -324,7 +335,10 @@ impl Parser {
         match &self.current_token {
             Token::True => Ok(Expression::BooleanLiteral(true)),
             Token::False => Ok(Expression::BooleanLiteral(false)),
-            _ => Err(ParseErr::ExpectedBoolToken(self.current_token.clone())),
+            _ => Err(ParseErr::ExpectedBoolToken(
+                self.current_token.clone(),
+                self.peek_token_pos,
+            )),
         }
     }
 }
