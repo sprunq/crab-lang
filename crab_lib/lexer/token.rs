@@ -31,6 +31,24 @@ pub enum Token {
     NotEqual,
 }
 
+pub fn lookup_ident(ident: &str) -> Token {
+    let token = match ident {
+        "function" => Some(Token::Function),
+        "let" => Some(Token::Let),
+        "true" => Some(Token::True),
+        "false" => Some(Token::False),
+        "if" => Some(Token::If),
+        "else" => Some(Token::Else),
+        "return" => Some(Token::Return),
+        _ => None,
+    };
+    if let Some(token) = token {
+        token
+    } else {
+        Token::Identifier(ident.to_owned())
+    }
+}
+
 impl fmt::Display for Token {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self {
@@ -62,23 +80,5 @@ impl fmt::Display for Token {
             Token::Equal => write!(f, "=="),
             Token::NotEqual => write!(f, "!="),
         }
-    }
-}
-
-pub fn lookup_ident(ident: &str) -> Token {
-    let token = match ident {
-        "function" => Some(Token::Function),
-        "let" => Some(Token::Let),
-        "true" => Some(Token::True),
-        "false" => Some(Token::False),
-        "if" => Some(Token::If),
-        "else" => Some(Token::Else),
-        "return" => Some(Token::Return),
-        _ => None,
-    };
-    if let Some(token) = token {
-        token
-    } else {
-        Token::Identifier(ident.to_owned())
     }
 }

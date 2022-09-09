@@ -3,7 +3,10 @@ name = "crab-lang"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+name = "crab_lib"
+path = "crab_lib/lib.rs"
+
 
 [dependencies]
 ferris-says = "0.2.1"

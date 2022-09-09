@@ -1,5 +1,6 @@
-use crate::token::Token;
 use std::fmt;
+
+use crate::lexer::token::Token;
 
 #[derive(Debug)]
 pub enum ParseErr {

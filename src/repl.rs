@@ -1,8 +1,10 @@
 use std::io::{self, Write};
-
+extern crate crab_lib;
+use crab_lib::{
+    lexer::Lexer,
+    parser::{parse_error::ParseErr, Parser},
+};
 use ferris_says::say;
-
-use crate::{lexer::Lexer, parser::Parser};
 
 pub fn start() {
     println!("{}", "Welcome to crab-lang v0.1\n");
@@ -22,7 +24,7 @@ pub fn start() {
     }
 }
 
-fn print_parser_errors_fmt_string(errors: &[crate::parse_error::ParseErr]) -> String {
+fn print_parser_errors_fmt_string(errors: &[ParseErr]) -> String {
     let errors = errors
         .iter()
         .map(|a| a.to_string())
