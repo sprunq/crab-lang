@@ -66,6 +66,7 @@ impl fmt::Display for ParseErr {
         }
     }
 }
+
 fn format_token(expected_token: &str, error_token: &Token, pos: &Position) -> String {
     format!(
         "Expected '{}' but got '{:?}' at position {}:{}",

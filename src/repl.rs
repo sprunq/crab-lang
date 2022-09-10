@@ -2,7 +2,7 @@ use std::io::{self, Write};
 extern crate crab_lib;
 use crab_lib::{lexer::Lexer, parser::Parser};
 
-use crate::print_parser_errors_fmt_string;
+use crate::{ferris_str, parse_err_fmt_str};
 
 pub fn start() {
     loop {
@@ -11,8 +11,8 @@ pub fn start() {
         let mut parser = Parser::new(lexer);
         let program = parser.parse_program();
         if parser.errors().len() > 0 {
-            let errs: String = print_parser_errors_fmt_string(parser.errors());
-            println!("{}", errs);
+            let errs: String = parse_err_fmt_str(parser.errors());
+            println!("{}", ferris_str(errs));
             continue;
         }
 
