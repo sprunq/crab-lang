@@ -1,6 +1,6 @@
-let ident = if (x < 5) { 
-    let res = add(5+3, -4);
-    return (a + res) * 1024; 
+let res = 
+if (x < 5) { 
+    return 20*5-32/3;
 } else { 
-    return z; 
-};
+    return 200; 
+}

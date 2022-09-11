@@ -1,6 +1,7 @@
 use std::io::{self, Write};
 extern crate crab_lib;
-use crab_lib::{lexer::Lexer, parser::Parser};
+
+use crab_lib::{evaluator::evaluator, lexer::lexer::Lexer, parser::parser::Parser};
 
 use crate::{ferris_str, parse_err_fmt_str};
 
@@ -10,14 +11,26 @@ pub fn start() {
         let lexer = Lexer::new(input);
         let mut parser = Parser::new(lexer);
         let program = parser.parse_program();
-        if parser.errors().len() > 0 {
+        if !parser.errors().is_empty() {
             let errs: String = parse_err_fmt_str(parser.errors());
             println!("{}", ferris_str(errs));
             continue;
         }
 
-        println!("{}", program);
-        println!("{}", "\n")
+        let evaluated = evaluator::eval(&program);
+        match evaluated {
+            Ok(res) => {
+                println!("{:#?}", res)
+            }
+            Err(err) => {
+                let error_msg = format!(
+                    "Oh Crab! I encountered an error during evaluation:\n{:?}",
+                    err
+                );
+                println!("{}", ferris_str(error_msg));
+                continue;
+            }
+        }
     }
 }
 
@@ -28,5 +41,5 @@ fn ask_input(prompt: &str) -> String {
     io::stdin()
         .read_line(&mut input)
         .expect("Failed to read line from stdin");
-    return input;
+    input
 }

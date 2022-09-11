@@ -1,15 +1,16 @@
-use crate::lexer::{token::Token, Lexer, Position};
-
-use self::{
-    ast::{BlockStatement, Expression, Infix, Prefix, Program, Statement},
-    parse_error::ParseErr,
-    precedence::Precedence,
+use crate::lexer::{
+    lexer::{Lexer, Position},
+    token::Token,
 };
 
-pub mod ast;
-pub mod parse_error;
-pub mod precedence;
-pub mod tests;
+use super::{
+    expression::Expression,
+    infix::Infix,
+    parse_error::ParseErr,
+    precedence::Precedence,
+    prefix::Prefix,
+    statement::{BlockStatement, Program, Statement},
+};
 
 type PrefixParseFn = fn(&mut Parser) -> Result<Expression, ParseErr>;
 type InfixParseFn = fn(&mut Parser, Expression) -> Result<Expression, ParseErr>;
@@ -33,7 +34,7 @@ impl Parser {
         };
         parser.next_token();
         parser.next_token();
-        return parser;
+        parser
     }
 
     pub fn input(&self) -> &str {
@@ -71,7 +72,7 @@ impl Parser {
             };
             self.next_token();
         }
-        return Program { statements };
+        Program { statements }
     }
 
     fn parse_statement(&mut self) -> Result<Statement, ParseErr> {
@@ -227,7 +228,7 @@ impl Parser {
         self.next_token();
         let expr = self.parse_expression(Precedence::Lowest)?;
         self.expect_peek(Token::RParenthesis, ParseErr::ExpectedRparen)?;
-        return Ok(expr);
+        Ok(expr)
     }
 
     fn parse_block_statement(&mut self) -> Result<BlockStatement, ParseErr> {

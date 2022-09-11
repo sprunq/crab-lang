@@ -1,7 +1,4 @@
-use self::token::{lookup_ident, Token};
-
-pub mod tests;
-pub mod token;
+use super::token::{lookup_ident, Token};
 
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Position {
@@ -27,7 +24,7 @@ impl Lexer {
             pos_2d: Position { line: 1, column: 0 },
         };
         lexer.read_char();
-        return lexer;
+        lexer
     }
 
     pub fn next_token(&mut self) -> (Token, Position) {
@@ -129,9 +126,9 @@ impl Lexer {
 
     fn peek_char(&mut self) -> char {
         if self.read_position >= self.input.len() {
-            return '\0';
+            '\0'
         } else {
-            return self.input.chars().nth(self.read_position).unwrap_or('\0');
+            self.input.chars().nth(self.read_position).unwrap_or('\0')
         }
     }
 

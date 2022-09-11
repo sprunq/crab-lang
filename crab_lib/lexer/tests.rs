@@ -1,6 +1,6 @@
 #[cfg(test)]
 pub mod tests {
-    use crate::lexer::{token::Token, Lexer};
+    use crate::lexer::{lexer::Lexer, token::Token};
 
     fn assert_lex_against(input: &str, expected: Vec<Token>) {
         let mut lexer = Lexer::new(input.to_owned());

@@ -1,11 +1,9 @@
 #[cfg(test)]
 pub mod tests {
+
     use crate::{
-        lexer::Lexer,
-        parser::{
-            ast::{Expression, Infix, Statement},
-            Parser,
-        },
+        lexer::lexer::Lexer,
+        parser::{expression::Expression, infix::Infix, parser::Parser, statement::Statement},
     };
 
     fn check_parser_errors(parser: &Parser) {
