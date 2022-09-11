@@ -7,7 +7,7 @@ pub enum Expression {
     Infix(Infix, Box<Expression>, Box<Expression>),
     Prefix(Prefix, Box<Expression>),
     Identifier(String),
-    IntegerLiteral(i64),
+    IntegerLiteral(i128),
     FloatLiteral(f64),
     BooleanLiteral(bool),
     If(Box<Expression>, BlockStatement, Option<BlockStatement>),

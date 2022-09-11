@@ -4,7 +4,7 @@ use crate::{evaluator::eval_error::EvalErr, parser::prefix::Prefix};
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Object {
-    Integer(i64),
+    Integer(i128),
     Boolean(bool),
     Null,
     Return(Box<Object>),

@@ -111,7 +111,11 @@ fn eval_infix_expression(
     }
 }
 
-fn eval_integer_infix_expression(infix: &Infix, left: i64, right: i64) -> Result<Object, EvalErr> {
+fn eval_integer_infix_expression(
+    infix: &Infix,
+    left: i128,
+    right: i128,
+) -> Result<Object, EvalErr> {
     match infix {
         Infix::Eq => Ok(Object::Boolean(left == right)),
         Infix::NotEq => Ok(Object::Boolean(left != right)),
