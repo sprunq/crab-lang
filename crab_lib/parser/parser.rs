@@ -19,7 +19,6 @@ pub struct Parser {
     lexer: Lexer,
     current_token: Token,
     peek_token: Token,
-    errors: Vec<ParseErr>,
     peek_token_pos: Position,
 }
 
@@ -29,7 +28,6 @@ impl Parser {
             lexer,
             current_token: Token::Illegal,
             peek_token: Token::Illegal,
-            errors: vec![],
             peek_token_pos: Position { line: 0, column: 0 },
         };
         parser.next_token();
@@ -39,10 +37,6 @@ impl Parser {
 
     pub fn input(&self) -> &str {
         &self.lexer.input
-    }
-
-    pub fn errors(&self) -> &[ParseErr] {
-        &self.errors
     }
 
     pub fn next_token(&mut self) {
@@ -62,17 +56,14 @@ impl Parser {
         Ok(())
     }
 
-    pub fn parse_program(&mut self) -> Program {
+    pub fn parse_program(&mut self) -> Result<Program, ParseErr> {
         let mut statements = vec![];
         while self.current_token != Token::Eof {
-            let statement = self.parse_statement();
-            match statement {
-                Ok(stm) => statements.push(stm),
-                Err(err) => self.errors.push(err),
-            };
+            let statement = self.parse_statement()?;
+            statements.push(statement);
             self.next_token();
         }
-        Program { statements }
+        Ok(Program { statements })
     }
 
     fn parse_statement(&mut self) -> Result<Statement, ParseErr> {

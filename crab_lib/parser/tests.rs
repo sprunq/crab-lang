@@ -6,29 +6,16 @@ pub mod tests {
         parser::{expression::Expression, infix::Infix, parser::Parser, statement::Statement},
     };
 
-    fn check_parser_errors(parser: &Parser) {
-        let errors = &parser.errors();
-        if errors.len() > 0 {
-            panic!(
-                "\nInput:\n'{}' \nGot Parser Errors:\n- {}\n",
-                parser.input(),
-                errors
-                    .iter()
-                    .map(|a| a.to_string())
-                    .collect::<Vec<String>>()
-                    .join(", \n- ")
-            );
-        }
-    }
-
     fn check_str_str_eq(intput_output: Vec<(&str, &str)>) {
         for (input, expected) in intput_output {
             let lexer = Lexer::new(input.to_owned());
             let mut parser = Parser::new(lexer);
-            let program = parser.parse_program();
+            let parse_res = parser.parse_program();
 
-            check_parser_errors(&parser);
-            assert_eq!(program.to_string(), expected);
+            match parse_res {
+                Ok(program) => assert_eq!(program.to_string(), expected),
+                Err(err) => panic!("Got error: {:?}", err),
+            }
         }
     }
 
@@ -52,8 +39,7 @@ pub mod tests {
             ),
         ];
 
-        check_parser_errors(&parser);
-        assert_eq!(expected, program.statements,);
+        assert_eq!(expected, program.unwrap().statements);
     }
 
     #[test]
@@ -73,8 +59,7 @@ pub mod tests {
             Statement::Return(Some(Expression::BooleanLiteral(true))),
         ];
 
-        check_parser_errors(&parser);
-        assert_eq!(expected, program.statements,);
+        assert_eq!(expected, program.unwrap().statements);
     }
 
     #[test]
@@ -85,8 +70,7 @@ pub mod tests {
         let program = parser.parse_program();
         let expected = vec![Statement::Expression(Expression::IntegerLiteral(5))];
 
-        check_parser_errors(&parser);
-        assert_eq!(expected, program.statements);
+        assert_eq!(expected, program.unwrap().statements);
     }
 
     #[test]
@@ -106,10 +90,9 @@ pub mod tests {
             let mut parser = Parser::new(lexer);
 
             let program = parser.parse_program();
-            check_parser_errors(&parser);
 
             assert_eq!(
-                program.statements,
+                program.unwrap().statements,
                 vec![Statement::Expression(Expression::Infix(
                     operator,
                     Box::new(Expression::IntegerLiteral(left)),
@@ -152,10 +135,9 @@ pub mod tests {
             let mut parser = Parser::new(lexer);
 
             let program = parser.parse_program();
-            check_parser_errors(&parser);
 
             assert_eq!(
-                program.statements,
+                program.unwrap().statements,
                 vec![Statement::Expression(Expression::Infix(
                     operator,
                     Box::new(Expression::BooleanLiteral(left)),

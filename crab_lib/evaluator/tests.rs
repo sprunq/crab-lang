@@ -10,8 +10,11 @@ pub mod tests {
     fn eval_input(input: &str) -> Result<Object, EvalErr> {
         let lexer = Lexer::new(input.to_string());
         let mut parser = Parser::new(lexer);
-        let program = parser.parse_program();
-        return eval(&program);
+        let parse_res = parser.parse_program();
+        match parse_res {
+            Ok(prog) => return eval(&prog),
+            Err(err) => panic!("Error during parsing: \n{:?} For input: \n{}\n", err, input),
+        }
     }
 
     fn assert_input_against_object(input_expected: Vec<(&str, Object)>) {

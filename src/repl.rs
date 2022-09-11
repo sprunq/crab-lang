@@ -3,21 +3,21 @@ extern crate crab_lib;
 
 use crab_lib::{evaluator::evaluator, lexer::lexer::Lexer, parser::parser::Parser};
 
-use crate::{ferris_str, parse_err_fmt_str};
+use crate::ferris_str;
 
 pub fn start() {
     loop {
         let input = ask_input(">>");
         let lexer = Lexer::new(input);
         let mut parser = Parser::new(lexer);
-        let program = parser.parse_program();
-        if !parser.errors().is_empty() {
-            let errs: String = parse_err_fmt_str(parser.errors());
-            println!("{}", ferris_str(errs));
+        let parse_res = parser.parse_program();
+        if let Err(err) = parse_res {
+            let error_msg = format!("Oh Crab! I encountered an error during parsing:\n{:?}", err);
+            println!("{}", ferris_str(error_msg));
             continue;
         }
 
-        let evaluated = evaluator::eval(&program);
+        let evaluated = evaluator::eval(&parse_res.unwrap());
         match evaluated {
             Ok(res) => {
                 println!("{:#?}", res)

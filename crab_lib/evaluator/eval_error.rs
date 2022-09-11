@@ -15,7 +15,7 @@ pub enum EvalErr {
 impl fmt::Display for EvalErr {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match &self {
-            EvalErr::CannotApplyPrefix(prefix, obj) => write!(f, "{:?}{:?}", prefix, obj),
+            EvalErr::CannotApplyPrefix(prefix, obj) => write!(f, "{:?} {:?}", prefix, obj),
             EvalErr::IncompatibleTypes(infix, obj_l, obj_r) => {
                 write!(f, "{:?} {:?} {:?}", obj_l, infix, obj_r)
             }
