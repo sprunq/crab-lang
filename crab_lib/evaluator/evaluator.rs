@@ -26,7 +26,10 @@ pub fn eval(node: &Program, env: Rc<RefCell<Environment>>) -> Result<Object, Eva
 fn eval_statement(statement: &Statement, env: Rc<RefCell<Environment>>) -> Result<Object, EvalErr> {
     match statement {
         Statement::Let(name, exp) => {
-            let result = eval_expression(exp, Rc::clone(&env))?;
+            let mut result = eval_expression(exp, Rc::clone(&env))?;
+            if let Object::Return(value) = result {
+                result = *value;
+            }
             // TODO: Is this `clone()` the right way to do?
             env.borrow_mut().set(name, result.clone());
             Ok(result)

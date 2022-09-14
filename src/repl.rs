@@ -28,7 +28,7 @@ pub fn start() {
         let evaluated = evaluator::eval(&parse_res.unwrap(), Rc::clone(&env));
         match evaluated {
             Ok(res) => {
-                println!("{:#?}", res)
+                println!("{}", res)
             }
             Err(err) => {
                 let error_msg = format!(
