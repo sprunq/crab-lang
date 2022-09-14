@@ -1,5 +1,5 @@
 <p align="center">
-  <img height="150" src="res/crab_logo_border.png">
+  <img height="150" src="res/my-image.png">
 </p>
 
 # Crab
