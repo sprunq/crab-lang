@@ -1,13 +1,21 @@
-use std::io::{self, Write};
+use std::{
+    cell::RefCell,
+    io::{self, Write},
+    rc::Rc,
+};
 extern crate crab_lib;
 
-use crab_lib::{evaluator::evaluator, lexer::lexer::Lexer, parser::parser::Parser};
+use crab_lib::{
+    evaluator::evaluator, lexer::lexer::Lexer, object::environment::Environment,
+    parser::parser::Parser,
+};
 
 use crate::ferris_str;
 
 pub fn start() {
+    let env = Rc::new(RefCell::new(Environment::new()));
     loop {
-        let input = ask_input(">>");
+        let input = ask_input(">> ");
         let lexer = Lexer::new(input);
         let mut parser = Parser::new(lexer);
         let parse_res = parser.parse_program();
@@ -17,7 +25,7 @@ pub fn start() {
             continue;
         }
 
-        let evaluated = evaluator::eval(&parse_res.unwrap());
+        let evaluated = evaluator::eval(&parse_res.unwrap(), Rc::clone(&env));
         match evaluated {
             Ok(res) => {
                 println!("{:#?}", res)

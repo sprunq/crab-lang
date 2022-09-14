@@ -10,6 +10,7 @@ pub enum EvalErr {
     CannotApplyPrefix(Prefix, Object),
     IncompatibleTypes(Infix, Object, Object),
     UnsupportedOperand(Infix, Object, Object),
+    IdentifierNotFound(String),
 }
 
 impl fmt::Display for EvalErr {
@@ -22,6 +23,7 @@ impl fmt::Display for EvalErr {
             EvalErr::UnsupportedOperand(infix, obj_l, obj_r) => {
                 write!(f, "{:?} {:?} {:?}", obj_l, infix, obj_r)
             }
+            EvalErr::IdentifierNotFound(ident) => write!(f, "{:?}", ident),
         }
     }
 }

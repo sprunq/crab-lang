@@ -6,6 +6,7 @@ use crate::{evaluator::eval_error::EvalErr, parser::prefix::Prefix};
 pub enum Object {
     Integer(i128),
     Boolean(bool),
+    String(String),
     Null,
     Return(Box<Object>),
 }
@@ -17,6 +18,7 @@ impl fmt::Display for Object {
             Object::Boolean(val) => write!(f, "{}", val),
             Object::Null => write!(f, "null"),
             Object::Return(val) => write!(f, "{}", val),
+            Object::String(val) => write!(f, "{}", val),
         }
     }
 }
@@ -28,6 +30,7 @@ impl Object {
             Object::Boolean(_) => "INTEGER",
             Object::Null => "NULL",
             Object::Return(_) => "RETURN",
+            Object::String(_) => "STRING",
         }
     }
 

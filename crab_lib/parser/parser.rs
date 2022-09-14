@@ -154,10 +154,7 @@ impl Parser {
         self.expect_peek(Token::Assign, ParseErr::ExpectedAssign)?;
         self.next_token();
         let value = self.parse_expression(Precedence::Lowest)?;
-        if self.peek_token == Token::Semicolon {
-            self.next_token();
-        }
-
+        self.expect_peek(Token::Semicolon, ParseErr::ExpectedSemicolon)?;
         Ok(Statement::Let(name, value))
     }
 
@@ -167,10 +164,7 @@ impl Parser {
             return Ok(Statement::Return(None));
         }
         let expression = self.parse_expression(Precedence::Lowest)?;
-        if self.peek_token == Token::Semicolon {
-            self.next_token();
-        }
-
+        self.expect_peek(Token::Semicolon, ParseErr::ExpectedSemicolon)?;
         Ok(Statement::Return(Some(expression)))
     }
 
@@ -178,8 +172,10 @@ impl Parser {
         let expression = self.parse_expression(Precedence::Lowest);
         if self.peek_token == Token::Semicolon {
             self.next_token();
+            expression.map(Statement::Expression)
+        } else {
+            Ok(Statement::Return(Some(expression?)))
         }
-        expression.map(Statement::Expression)
     }
 
     fn parse_identifier_expression(&mut self) -> Result<Expression, ParseErr> {

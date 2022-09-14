@@ -1,9 +1,11 @@
 #[cfg(test)]
 pub mod tests {
+    use std::{cell::RefCell, rc::Rc};
+
     use crate::{
         evaluator::{eval_error::EvalErr, evaluator::eval},
         lexer::lexer::Lexer,
-        object::object::Object,
+        object::{environment::Environment, object::Object},
         parser::{infix::Infix, parser::Parser, prefix::Prefix},
     };
 
@@ -11,8 +13,9 @@ pub mod tests {
         let lexer = Lexer::new(input.to_string());
         let mut parser = Parser::new(lexer);
         let parse_res = parser.parse_program();
+        let env = Rc::new(RefCell::new(Environment::new()));
         match parse_res {
-            Ok(prog) => return eval(&prog),
+            Ok(prog) => return eval(&prog, env),
             Err(err) => panic!("Error during parsing: \n{:?} For input: \n{}\n", err, input),
         }
     }
@@ -22,6 +25,10 @@ pub mod tests {
             let eval = eval_input(input);
             match eval {
                 Ok(obj) => {
+                    //let to_compare = match obj {
+                    //  Object::Return(ret) => *ret,
+                    //_ => obj,
+                    //};
                     assert_eq!(obj, expected, "\n\tfor input: {}\n", input);
                 }
                 Err(err) => {
@@ -137,10 +144,10 @@ pub mod tests {
     #[test]
     fn test_if_else_expression() {
         let input = vec![
-            ("if(true){ 10 }", Object::Integer(10)),
-            ("if(false){ 10 }", Object::Null),
-            ("if(false){ 10 } else {20}", Object::Integer(20)),
-            ("if(true){ 0 } else {20}", Object::Integer(0)),
+            ("if(true){ 10 };", Object::Integer(10)),
+            ("if(false){ 10 };", Object::Null),
+            ("if(false){ 10 } else {20};", Object::Integer(20)),
+            ("if(true){ 0 } else {20};", Object::Integer(0)),
         ];
         assert_input_against_object(input);
     }
@@ -153,14 +160,30 @@ pub mod tests {
             ("return 2*5; 9", Object::Integer(10)),
             ("9; return 2*5; 9", Object::Integer(10)),
             (
-                "if(true) { 
+                "if(true) 
+                { 
                     if(true) 
                     {
                         return 10; 
-                    } 
+                    };
                     return 0; 
-                }",
+                };
+                ",
                 Object::Integer(10),
+            ),
+        ];
+        assert_input_against_object(input);
+    }
+
+    #[test]
+    fn test_let_statement() {
+        let input = vec![
+            ("let a = 5; a", Object::Integer(5)),
+            ("let a = 5 * 5; a", Object::Integer(25)),
+            ("let a = 5; let b = a; b", Object::Integer(5)),
+            (
+                "let a = 5; let b = a; let c = a + b + 5; c",
+                Object::Integer(15),
             ),
         ];
         assert_input_against_object(input);
@@ -189,6 +212,7 @@ pub mod tests {
                 "!5;",
                 EvalErr::CannotApplyPrefix(Prefix::Bang, Object::Integer(5)),
             ),
+            ("foobar", EvalErr::IdentifierNotFound("foobar".to_string())),
         ];
         assert_input_against_expected_error(input);
     }

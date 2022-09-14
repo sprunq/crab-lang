@@ -64,7 +64,7 @@ pub mod tests {
 
     #[test]
     fn test_integer_expression() {
-        let input = "5";
+        let input = "5;";
         let lexer = Lexer::new(input.to_owned());
         let mut parser = Parser::new(lexer);
         let program = parser.parse_program();
@@ -116,8 +116,8 @@ pub mod tests {
             ("false;", "false;"),
             ("return true;", "return true;"),
             ("return false;", "return false;"),
-            ("12 > 5 == true", "((12 > 5) == true);"),
-            ("12 < 5 != !false", "((12 < 5) != (!false));"),
+            ("12 > 5 == true;", "((12 > 5) == true);"),
+            ("12 < 5 != !false;", "((12 < 5) != (!false));"),
         ];
 
         check_str_str_eq(intput_output);
@@ -126,9 +126,9 @@ pub mod tests {
     #[test]
     fn infix_expression_boolean() {
         let tests = vec![
-            ("true == true", true, Infix::Eq, true),
-            ("true != false", true, Infix::NotEq, false),
-            ("false == false", false, Infix::Eq, false),
+            ("true == true;", true, Infix::Eq, true),
+            ("true != false;", true, Infix::NotEq, false),
+            ("false == false;", false, Infix::Eq, false),
         ];
         for (input, left, operator, right) in tests {
             let lexer = Lexer::new(input.to_owned());
@@ -150,10 +150,10 @@ pub mod tests {
     #[test]
     fn test_function_literal() {
         let intput_output = vec![
-            ("function(x, y) { x + y; }", "function(x, y) { (x + y); };"),
-            ("function() { 3 * 9; }", "function() { (3 * 9); };"),
-            ("function(x) { x * 9; }", "function(x) { (x * 9); };"),
-            ("function(x, y) { x + y; }", "function(x, y) { (x + y); };"),
+            ("function(x, y) { x + y; };", "function(x, y) { (x + y); };"),
+            ("function() { 3 * 9; };", "function() { (3 * 9); };"),
+            ("function(x) { x * 9; };", "function(x) { (x * 9); };"),
+            ("function(x, y) { x + y; };", "function(x, y) { (x + y); };"),
         ];
         check_str_str_eq(intput_output);
     }
@@ -161,19 +161,19 @@ pub mod tests {
     #[test]
     fn test_function_call() {
         let intput_output = vec![
-            ("call()", "call();"),
-            ("add(1, 2 * 3, 4 + 5)", "add(1, (2 * 3), (4 + 5));"),
-            ("a + add(b * c) + d", "((a + add((b * c))) + d);"),
+            ("call();", "call();"),
+            ("add(1, 2 * 3, 4 + 5);", "add(1, (2 * 3), (4 + 5));"),
+            ("a + add(b * c) + d;", "((a + add((b * c))) + d);"),
             (
-                "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))",
+                "add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8));",
                 "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)));",
             ),
             (
-                "add(a + b + c * d / f + g)",
+                "add(a + b + c * d / f + g);",
                 "add((((a + b) + ((c * d) / f)) + g));",
             ),
             (
-                "function(x, y) { x + y; }(3, 4)",
+                "function(x, y) { x + y; }(3, 4);",
                 "function(x, y) { (x + y); }(3, 4);",
             ),
         ];
@@ -183,33 +183,33 @@ pub mod tests {
     #[test]
     fn test_operator_precedence() {
         let intput_output = vec![
-            ("-a * b", "((-a) * b);"),
-            ("!-a", "(!(-a));"),
-            ("a + b + c", "((a + b) + c);"),
-            ("a + b - c", "((a + b) - c);"),
-            ("a * b * c", "((a * b) * c);"),
-            ("a * b / c", "((a * b) / c);"),
-            ("a + b / c", "(a + (b / c));"),
-            ("a + b * c + d / e - f", "(((a + (b * c)) + (d / e)) - f);"),
-            ("3 + 4; -5 * 5", "(3 + 4);((-5) * 5);"),
-            ("5 > 4 == 3 < 4", "((5 > 4) == (3 < 4));"),
-            ("5 < 4 != 3 > 4", "((5 < 4) != (3 > 4));"),
+            ("-a * b;", "((-a) * b);"),
+            ("!-a;", "(!(-a));"),
+            ("a + b + c;", "((a + b) + c);"),
+            ("a + b - c;", "((a + b) - c);"),
+            ("a * b * c;", "((a * b) * c);"),
+            ("a * b / c;", "((a * b) / c);"),
+            ("a + b / c;", "(a + (b / c));"),
+            ("a + b * c + d / e - f;", "(((a + (b * c)) + (d / e)) - f);"),
+            ("3 + 4; -5 * 5;", "(3 + 4);((-5) * 5);"),
+            ("5 > 4 == 3 < 4;", "((5 > 4) == (3 < 4));"),
+            ("5 < 4 != 3 > 4;", "((5 < 4) != (3 > 4));"),
             (
-                "3 + 4 * 5 == 3 * 1 + 4 * 5",
+                "3 + 4 * 5 == 3 * 1 + 4 * 5;",
                 "((3 + (4 * 5)) == ((3 * 1) + (4 * 5)));",
             ),
-            ("1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4);"),
-            ("(5 + 5) * 2", "((5 + 5) * 2);"),
-            ("2 / (5 + 5)", "(2 / (5 + 5));"),
-            ("-(5 + 5)", "(-(5 + 5));"),
-            ("!(true == true)", "(!(true == true));"),
-            ("if (x < y) { x }", "if (x < y) { x; };"),
+            ("1 + (2 + 3) + 4;", "((1 + (2 + 3)) + 4);"),
+            ("(5 + 5) * 2;", "((5 + 5) * 2);"),
+            ("2 / (5 + 5);", "(2 / (5 + 5));"),
+            ("-(5 + 5);", "(-(5 + 5));"),
+            ("!(true == true);", "(!(true == true));"),
+            ("if (x < y) { return x; };", "if (x < y) { return x; };"),
             (
-                "if (x < y) { x } else { y }",
+                "if (x < y) { x; } else { y; };",
                 "if (x < y) { x; } else { y; };",
             ),
             (
-                "function(x, y) { x + y; }(3, 4)",
+                "function(x, y) { x + y; }(3, 4);",
                 "function(x, y) { (x + y); }(3, 4);",
             ),
         ];
