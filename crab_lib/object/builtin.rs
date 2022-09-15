@@ -33,9 +33,21 @@ pub fn lookup(name: &str) -> Option<Object> {
 }
 
 fn print(arguments: Vec<Object>) -> Result<Object, EvalErr> {
+    let mut str = "".to_string();
     for arg in arguments {
-        println!("{}", arg);
+        let s;
+        if let Object::String(val) = arg {
+            if val == "\\n" {
+                s = "\n".to_string();
+            } else {
+                s = val.to_string();
+            }
+        } else {
+            s = format!("{}", arg).to_string();
+        }
+        str = [str, s].concat();
     }
+    print!("{}", str);
     Ok(Object::Null)
 }
 

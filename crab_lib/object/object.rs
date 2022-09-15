@@ -25,7 +25,7 @@ impl fmt::Display for Object {
             Object::Boolean(value) => write!(f, "{}", value),
             Object::Integer(value) => write!(f, "{}", value),
             Object::Float(value) => write!(f, "{}", value),
-            Object::String(value) => write!(f, "\"{}\"", value),
+            Object::String(value) => write!(f, "{}", value),
             Object::Null => write!(f, "null"),
             Object::Return(value) => write!(f, "{}", *value),
             Object::Function(params, body, _) => {

@@ -1,0 +1,8 @@
+let fib_rec = function(n){
+    if(n < 2){
+        return n;
+    };
+    return fib_rec(n-1) + fib_rec(n-2);
+};
+
+print(fib_rec(25));
