@@ -25,3 +25,14 @@ for(loop_i < n){
     print(loop_i, ": ", a, "\n"); 
 }
 ```
+
+## Benchmark 
+
+100000 iterations of computing iterative fibonacci functions for the 100th number. Needless to say this language is _not fast_ but what did you expect.
+
+<p align="center">
+  <img src="res/benchmark.svg">
+</p>
+
+
+

@@ -7,6 +7,7 @@ pub mod repl;
 fn main() {
     let args = Args::parse();
     println!("Welcome to crab-lang v0.1\n");
+
     match args.run_mode {
         RunMode::Repl => repl::start(),
         RunMode::File => interpret_file::start(&args.path),

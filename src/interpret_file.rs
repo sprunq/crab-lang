@@ -1,5 +1,6 @@
 use std::{cell::RefCell, fs, rc::Rc};
 extern crate crab_lib;
+use std::time::Instant;
 
 use crab_lib::{
     evaluator::evaluator,
@@ -21,8 +22,10 @@ pub fn start(path: &str) {
         std::process::exit(0);
     }
 
+    let now = Instant::now();
     let env = Rc::new(RefCell::new(Environment::new()));
     let evaluated = evaluator::eval(&parse_res.unwrap(), Rc::clone(&env));
+    let elapsed = now.elapsed();
     match evaluated {
         Ok(res) => {
             if Object::Null != res {
@@ -38,4 +41,5 @@ pub fn start(path: &str) {
             std::process::exit(0);
         }
     }
+    println!("\nFinished evaluation in: {:.2?}", elapsed / 100000);
 }
