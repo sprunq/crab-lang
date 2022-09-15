@@ -38,7 +38,7 @@ impl fmt::Display for EvalErr {
             EvalErr::UnknownIndexOperator(l_eval, r_eval) => write!(f, "{:?} {:?}", l_eval, r_eval),
             EvalErr::UnsupportedArguments(name, arguments) => write!(
                 f,
-                "unsupported arguments to `{}`: {}",
+                "{:?} {:?}",
                 name,
                 arguments
                     .iter()
