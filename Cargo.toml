@@ -10,4 +10,5 @@ path = "crab_lib/lib.rs"
 
 [dependencies]
 ansi_term = "0.12.1"
+clap = { version = "3.2.21", features = ["derive"] }
 ferris-says = "0.2.1"

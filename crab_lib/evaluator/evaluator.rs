@@ -30,7 +30,6 @@ fn eval_statement(statement: &Statement, env: Rc<RefCell<Environment>>) -> Resul
             if let Object::Return(value) = result {
                 result = *value;
             }
-            // TODO: Is this `clone()` the right way to do?
             env.borrow_mut().set(name, result.clone());
             Ok(result)
         }
@@ -69,7 +68,30 @@ fn eval_expression(
             apply_function(function, arguments)
         }
         Expression::StringLiteral(s) => Ok(Object::String(s.to_string())),
+        Expression::ForLoop(condition, consequence) => {
+            eval_forloop_expression(condition, consequence, env)
+        }
     }
+}
+
+fn eval_forloop_expression(
+    condition: &Expression,
+    consequence: &BlockStatement,
+    env: Rc<RefCell<Environment>>,
+) -> Result<Object, EvalErr> {
+    let mut rt = Object::Boolean(true);
+    loop {
+        let condition = eval_expression(condition, Rc::clone(&env))?;
+        if condition == Object::Boolean(true) {
+            rt = eval_block_statement(consequence, Rc::clone(&env))?;
+            if let Object::Return(return_val) = rt {
+                return Ok(*return_val);
+            }
+        } else {
+            break;
+        }
+    }
+    Ok(rt)
 }
 
 fn eval_expressions(
@@ -185,6 +207,18 @@ fn eval_infix_expression(
         (Object::Integer(left), Object::Integer(right)) => {
             eval_integer_infix_expression(infix, left, right)
         }
+        (Object::Integer(left), Object::Float(right)) => {
+            eval_float_infix_expression(infix, left as f64, right)
+        }
+        (Object::Float(left), Object::Integer(right)) => {
+            eval_float_infix_expression(infix, left, right as f64)
+        }
+        (Object::Float(left), Object::Float(right)) => {
+            eval_float_infix_expression(infix, left, right)
+        }
+        (Object::String(left), Object::String(right)) => {
+            eval_string_infix_expression(infix, &left, &right)
+        }
         (left, right) => Err(EvalErr::IncompatibleTypes(infix.clone(), left, right)),
     }
 }
@@ -203,6 +237,30 @@ fn eval_integer_infix_expression(
         Infix::Minus => Ok(Object::Integer(left - right)),
         Infix::Asterisk => Ok(Object::Integer(left * right)),
         Infix::Slash => Ok(Object::Integer(left / right)),
+    }
+}
+
+fn eval_float_infix_expression(infix: &Infix, left: f64, right: f64) -> Result<Object, EvalErr> {
+    Ok(match infix {
+        Infix::Eq => Object::Boolean(left == right),
+        Infix::NotEq => Object::Boolean(left != right),
+        Infix::Lt => Object::Boolean(left < right),
+        Infix::Gt => Object::Boolean(left > right),
+        Infix::Plus => Object::Float(left + right),
+        Infix::Minus => Object::Float(left - right),
+        Infix::Asterisk => Object::Float(left * right),
+        Infix::Slash => Object::Float(left / right),
+    })
+}
+
+fn eval_string_infix_expression(infix: &Infix, left: &str, right: &str) -> Result<Object, EvalErr> {
+    match infix {
+        Infix::Plus => Ok(Object::String([left, right].concat())),
+        _ => Err(EvalErr::UnknownInfixOperator(
+            infix.clone(),
+            Object::String(left.to_string()),
+            Object::String(right.to_string()),
+        )),
     }
 }
 

@@ -15,6 +15,7 @@ pub enum Expression {
     Empty,
     FunctionLiteral(Vec<String>, BlockStatement),
     Call(Box<Expression>, Vec<Expression>),
+    ForLoop(Box<Expression>, BlockStatement),
 }
 
 impl fmt::Display for Expression {
@@ -46,6 +47,9 @@ impl fmt::Display for Expression {
                         .collect::<Vec<String>>()
                         .join(", ")
                 })
+            }
+            Expression::ForLoop(condition, consequence) => {
+                write!(f, "for ({}) {{{}}}", condition, consequence)
             }
         }
     }

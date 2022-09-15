@@ -16,6 +16,7 @@ pub enum EvalErr {
     UnsupportedHashKey(Object),
     UnknownIndexOperator(Object, Object),
     UnsupportedArguments(String, Vec<Object>),
+    UnknownInfixOperator(Infix, Object, Object),
 }
 
 impl fmt::Display for EvalErr {
@@ -45,6 +46,9 @@ impl fmt::Display for EvalErr {
                     .collect::<Vec<&str>>()
                     .join(", ")
             ),
+            EvalErr::UnknownInfixOperator(infix, left, right) => {
+                write!(f, "{:?} {:?} {:?}", left, infix, right)
+            }
         }
     }
 }
