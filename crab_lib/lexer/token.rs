@@ -6,6 +6,8 @@ pub enum Token {
     Eof,
     Identifier(String),
     Int(String),
+    Float(String),
+    String(String),
     Comma,
     Semicolon,
     LParenthesis,
@@ -29,6 +31,9 @@ pub enum Token {
     Gt,
     Equal,
     NotEqual,
+    LBracket,
+    RBracket,
+    Colon,
 }
 
 pub fn lookup_ident(ident: &str) -> Token {
@@ -79,6 +84,11 @@ impl fmt::Display for Token {
             Token::Return => write!(f, "return"),
             Token::Equal => write!(f, "=="),
             Token::NotEqual => write!(f, "!="),
+            Token::LBracket => write!(f, "["),
+            Token::RBracket => write!(f, "]"),
+            Token::Colon => write!(f, ":"),
+            Token::Float(float) => write!(f, "{}", float),
+            Token::String(s) => write!(f, "\"{}\"", s),
         }
     }
 }

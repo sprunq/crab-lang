@@ -11,7 +11,7 @@ enum RunMode {
 
 fn main() {
     println!("Welcome to crab-lang v0.1\n");
-    let run_mode = RunMode::Repl;
+    let run_mode = RunMode::InterpretFile;
     match run_mode {
         RunMode::Repl => repl::start(),
         RunMode::InterpretFile => interpret_file::start("res/input.crab"),

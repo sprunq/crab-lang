@@ -1,7 +1,7 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    object::{environment::Environment, object::Object},
+    object::{builtin, environment::Environment, object::Object},
     parser::{
         expression::Expression,
         infix::Infix,
@@ -54,26 +54,73 @@ fn eval_expression(
         }
         Expression::Identifier(name) => eval_identifier(name, env),
         Expression::IntegerLiteral(value) => Ok(Object::Integer(*value)),
-        Expression::FloatLiteral(_) => todo!(),
+        Expression::FloatLiteral(value) => Ok(Object::Float(*value)),
         Expression::BooleanLiteral(value) => Ok(Object::Boolean(*value)),
         Expression::If(condition, consequence, alternative) => {
             eval_if_expression(condition, consequence, alternative, env)
         }
-        Expression::Empty => todo!(),
-        Expression::FunctionLiteral(_, _) => todo!(),
-        Expression::Call(_, _) => todo!(),
+        Expression::Empty => Ok(Object::Null),
+        Expression::FunctionLiteral(params, body) => {
+            Ok(Object::Function(params.to_vec(), body.clone(), env))
+        }
+        Expression::Call(func, args) => {
+            let function = eval_expression(func, Rc::clone(&env))?;
+            let arguments = eval_expressions(args, env)?;
+            apply_function(function, arguments)
+        }
+        Expression::StringLiteral(s) => Ok(Object::String(s.to_string())),
     }
+}
+
+fn eval_expressions(
+    exps: &[Expression],
+    env: Rc<RefCell<Environment>>,
+) -> Result<Vec<Object>, EvalErr> {
+    let mut results = vec![];
+    for exp in exps {
+        results.push(eval_expression(exp, Rc::clone(&env))?);
+    }
+    Ok(results)
+}
+
+fn apply_function(function: Object, arguments: Vec<Object>) -> Result<Object, EvalErr> {
+    match function {
+        Object::Function(params, body, env) => {
+            if arguments.len() != params.len() {
+                return Err(EvalErr::WrongArgumentCount(params.len(), arguments.len()));
+            };
+            let new_env = extend_function_env(params, arguments, env);
+            let evaluated = eval_block_statement(&body, new_env)?;
+            match evaluated {
+                Object::Return(value) => Ok(*value),
+                _ => Ok(evaluated),
+            }
+        }
+        Object::Builtin(func) => func(arguments),
+        _ => Err(EvalErr::NotCallable(function.clone())),
+    }
+}
+
+fn extend_function_env(
+    params: Vec<String>,
+    arguments: Vec<Object>,
+    env: Rc<RefCell<Environment>>,
+) -> Rc<RefCell<Environment>> {
+    let new_env = Rc::new(RefCell::new(Environment::extend(env)));
+    for (i, param) in params.iter().enumerate() {
+        let arg = (arguments.get(i)).cloned().unwrap_or(Object::Null);
+        new_env.borrow_mut().set(param, arg);
+    }
+    new_env
 }
 
 fn eval_identifier(name: &str, env: Rc<RefCell<Environment>>) -> Result<Object, EvalErr> {
     if let Some(obj) = env.borrow().get(name) {
-        return Ok(obj.clone());
+        return Ok(obj);
     }
-    /*
     if let Some(obj) = builtin::lookup(name) {
         return Ok(obj);
     }
-    */
     Err(EvalErr::IdentifierNotFound(name.to_string()))
 }
 
@@ -98,7 +145,6 @@ fn eval_block_statement(
     block: &BlockStatement,
     env: Rc<RefCell<Environment>>,
 ) -> Result<Object, EvalErr> {
-    // let mut res = Object::Null;
     for statement in &block.statements {
         let res = eval_statement(statement, Rc::clone(&env))?;
         if let Object::Return(_) = res {

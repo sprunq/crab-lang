@@ -1,4 +1,4 @@
-use super::token::{lookup_ident, Token};
+use super::token::{self, Token};
 
 #[derive(Clone, Debug, PartialEq, Copy)]
 pub struct Position {
@@ -44,6 +44,15 @@ impl Lexer {
             '{' => tok = Token::LBrace,
             '}' => tok = Token::RBrace,
             '\0' => tok = Token::Eof,
+            '[' => {
+                tok = Token::LBracket;
+            }
+            ']' => {
+                tok = Token::RBracket;
+            }
+            '"' => {
+                tok = Token::String(self.read_string().to_string());
+            }
             '=' => {
                 tok = {
                     if self.peek_char() == '=' {
@@ -67,10 +76,19 @@ impl Lexer {
             _ => {
                 if Self::is_letter(self.character) {
                     let ident = self.read_identifier();
-                    return (lookup_ident(&ident), self.pos_2d);
+                    return (token::lookup_ident(&ident), self.pos_2d);
                 } else if Self::is_digit(self.character) {
-                    let digit = self.read_number();
-                    return (Token::Int(digit), self.pos_2d);
+                    let integer_part = self.read_number();
+                    if self.character == '.' && Self::is_digit(self.peek_char()) {
+                        self.read_char();
+                        let fractional_part = self.read_number();
+                        return (
+                            Token::Float(format!("{}.{}", integer_part, fractional_part)),
+                            self.pos_2d,
+                        );
+                    } else {
+                        return (Token::Int(integer_part), self.pos_2d);
+                    }
                 } else {
                     tok = Token::Illegal
                 }
@@ -95,6 +113,17 @@ impl Lexer {
 
     fn is_letter(character: char) -> bool {
         character.is_alphabetic() || character == '_'
+    }
+
+    fn read_string(&mut self) -> &str {
+        let position = self.position + 1;
+        loop {
+            self.read_char();
+            if self.character == '"' || self.character == '\u{0}' {
+                break;
+            }
+        }
+        &self.input[position..self.position]
     }
 
     pub fn read_identifier(&mut self) -> String {

@@ -7,4 +7,5 @@ pub enum Precedence {
     Product,
     Prefix,
     Call,
+    Index,
 }

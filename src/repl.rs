@@ -6,7 +6,9 @@ use std::{
 extern crate crab_lib;
 
 use crab_lib::{
-    evaluator::evaluator, lexer::lexer::Lexer, object::environment::Environment,
+    evaluator::evaluator,
+    lexer::lexer::Lexer,
+    object::{environment::Environment, object::Object},
     parser::parser::Parser,
 };
 
@@ -28,7 +30,9 @@ pub fn start() {
         let evaluated = evaluator::eval(&parse_res.unwrap(), Rc::clone(&env));
         match evaluated {
             Ok(res) => {
-                println!("{}", res)
+                if Object::Null != res {
+                    println!("{}", res)
+                }
             }
             Err(err) => {
                 let error_msg = format!(

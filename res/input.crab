@@ -1,6 +1,7 @@
-let res = 
-if (x < 5) { 
-    return 20*5-32/3;
+let a = 100;
+let b = 20;
+if (a/b == 5) { 
+    print("Is 5!");
 } else { 
-    return 200; 
-}
+    print("Is not 5!");
+};

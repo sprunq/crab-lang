@@ -1,7 +1,12 @@
-use std::fs;
+use std::{cell::RefCell, fs, rc::Rc};
 extern crate crab_lib;
 
-use crab_lib::{lexer::lexer::Lexer, parser::parser::Parser};
+use crab_lib::{
+    evaluator::evaluator,
+    lexer::lexer::Lexer,
+    object::{environment::Environment, object::Object},
+    parser::parser::Parser,
+};
 
 use crate::ferris_str;
 
@@ -13,8 +18,24 @@ pub fn start(path: &str) {
     if let Err(ref err) = parse_res {
         let error_msg = format!("Oh Crab! I encountered an error during parsing:\n{:?}", err);
         println!("{}", ferris_str(error_msg));
+        std::process::exit(0);
     }
 
-    println!("Input: \n{}\n", data);
-    println!("Parsed: \n{:#?}", parse_res.unwrap());
+    let env = Rc::new(RefCell::new(Environment::new()));
+    let evaluated = evaluator::eval(&parse_res.unwrap(), Rc::clone(&env));
+    match evaluated {
+        Ok(res) => {
+            if Object::Null != res {
+                println!("{}", res)
+            }
+        }
+        Err(err) => {
+            let error_msg = format!(
+                "Oh Crab! I encountered an error during evaluation:\n{:?}",
+                err
+            );
+            println!("{}", ferris_str(error_msg));
+            std::process::exit(0);
+        }
+    }
 }

@@ -2,6 +2,8 @@
 pub mod tests {
     use std::{cell::RefCell, rc::Rc};
 
+    use crate::parser::expression::Expression;
+    use crate::parser::statement::{BlockStatement, Statement};
     use crate::{
         evaluator::{eval_error::EvalErr, evaluator::eval},
         lexer::lexer::Lexer,
@@ -144,10 +146,16 @@ pub mod tests {
     #[test]
     fn test_if_else_expression() {
         let input = vec![
-            ("if(true){ 10 };", Object::Integer(10)),
-            ("if(false){ 10 };", Object::Null),
-            ("if(false){ 10 } else {20};", Object::Integer(20)),
-            ("if(true){ 0 } else {20};", Object::Integer(0)),
+            ("if(true){ return 10; };", Object::Integer(10)),
+            ("if(false){ return 10; };", Object::Null),
+            (
+                "if(false){ return 10; } else { return 20; };",
+                Object::Integer(20),
+            ),
+            (
+                "if(true){ return 0; } else {return 20;};",
+                Object::Integer(0),
+            ),
         ];
         assert_input_against_object(input);
     }
@@ -186,6 +194,26 @@ pub mod tests {
                 Object::Integer(15),
             ),
         ];
+        assert_input_against_object(input);
+    }
+
+    #[test]
+    fn test_function() {
+        let input = vec![(
+            "function(x){ x + 2; }",
+            Object::Function(
+                vec!["x".to_string()],
+                BlockStatement {
+                    statements: [Statement::Expression(Expression::Infix(
+                        Infix::Plus,
+                        Box::new(Expression::Identifier("x".to_string())),
+                        Box::new(Expression::IntegerLiteral(2)),
+                    ))]
+                    .to_vec(),
+                },
+                Rc::new(RefCell::new(Environment::new())),
+            ),
+        )];
         assert_input_against_object(input);
     }
 

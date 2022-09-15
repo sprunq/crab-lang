@@ -1,24 +1,37 @@
-use std::fmt;
+use std::{cell::RefCell, fmt, rc::Rc};
 
-use crate::{evaluator::eval_error::EvalErr, parser::prefix::Prefix};
+use crate::{
+    evaluator::eval_error::EvalErr,
+    parser::{prefix::Prefix, statement::BlockStatement},
+};
+
+use super::environment::Environment;
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum Object {
-    Integer(i128),
     Boolean(bool),
+    Integer(i128),
+    Float(f64),
     String(String),
     Null,
     Return(Box<Object>),
+    Function(Vec<String>, BlockStatement, Rc<RefCell<Environment>>),
+    Builtin(fn(Vec<Object>) -> Result<Object, EvalErr>),
 }
 
 impl fmt::Display for Object {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match &self {
-            Object::Integer(val) => write!(f, "{}", val),
-            Object::Boolean(val) => write!(f, "{}", val),
+        match self {
+            Object::Boolean(value) => write!(f, "{}", value),
+            Object::Integer(value) => write!(f, "{}", value),
+            Object::Float(value) => write!(f, "{}", value),
+            Object::String(value) => write!(f, "\"{}\"", value),
             Object::Null => write!(f, "null"),
-            Object::Return(val) => write!(f, "{}", val),
-            Object::String(val) => write!(f, "{}", val),
+            Object::Return(value) => write!(f, "{}", *value),
+            Object::Function(params, body, _) => {
+                write!(f, "fn({}) {{\n{}\n}}", params.join(", "), body)
+            }
+            Object::Builtin(_) => write!(f, "builtin function"),
         }
     }
 }
@@ -26,11 +39,14 @@ impl fmt::Display for Object {
 impl Object {
     pub fn get_type_name(&self) -> &str {
         match &self {
-            Object::Integer(_) => "BOOLEAN",
-            Object::Boolean(_) => "INTEGER",
+            Object::Boolean(_) => "BOOLEAN",
+            Object::Integer(_) => "INTEGER",
+            Object::Float(_) => "FLOAT",
+            Object::String(_) => "STRING",
             Object::Null => "NULL",
             Object::Return(_) => "RETURN",
-            Object::String(_) => "STRING",
+            Object::Function(_, _, _) => "FUNCTION",
+            Object::Builtin(_) => "BUILTIN",
         }
     }
 

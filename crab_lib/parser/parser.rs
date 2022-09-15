@@ -78,6 +78,8 @@ impl Parser {
         match &self.current_token {
             Token::Identifier(_) => Some(Parser::parse_identifier_expression),
             Token::Int(_) => Some(Parser::parse_integer_expression),
+            Token::Float(_) => Some(Parser::parse_float_literal),
+            Token::String(_) => Some(Parser::parse_string_literal),
             Token::Bang => Some(Parser::parse_prefix_expression),
             Token::Minus => Some(Parser::parse_prefix_expression),
             Token::True | Token::False => Some(Parser::parse_boolean_expression),
@@ -125,6 +127,7 @@ impl Parser {
             Token::Slash => (Precedence::Product, Some(Infix::Slash)),
             Token::Asterisk => (Precedence::Product, Some(Infix::Asterisk)),
             Token::LParenthesis => (Precedence::Call, None),
+            Token::LBracket => (Precedence::Index, None),
             _ => (Precedence::Lowest, None),
         }
     }
@@ -172,10 +175,8 @@ impl Parser {
         let expression = self.parse_expression(Precedence::Lowest);
         if self.peek_token == Token::Semicolon {
             self.next_token();
-            expression.map(Statement::Expression)
-        } else {
-            Ok(Statement::Return(Some(expression?)))
         }
+        expression.map(Statement::Expression)
     }
 
     fn parse_identifier_expression(&mut self) -> Result<Expression, ParseErr> {
@@ -327,6 +328,31 @@ impl Parser {
                 self.current_token.clone(),
                 self.peek_token_pos,
             )),
+        }
+    }
+
+    fn parse_float_literal(&mut self) -> Result<Expression, ParseErr> {
+        if let Token::Float(float) = &self.current_token {
+            match float.parse() {
+                Ok(value) => Ok(Expression::FloatLiteral(value)),
+                Err(_) => Err(ParseErr::ParseFloat(float.to_string(), self.peek_token_pos)),
+            }
+        } else {
+            Err(ParseErr::ExpectedFloatToken(
+                self.current_token.clone(),
+                self.peek_token_pos,
+            ))
+        }
+    }
+
+    fn parse_string_literal(&mut self) -> Result<Expression, ParseErr> {
+        if let Token::String(s) = &self.current_token {
+            Ok(Expression::StringLiteral(s.to_string()))
+        } else {
+            Err(ParseErr::ExpectedStringToken(
+                self.current_token.clone(),
+                self.peek_token_pos,
+            ))
         }
     }
 }
