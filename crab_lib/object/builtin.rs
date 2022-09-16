@@ -37,11 +37,7 @@ fn print(arguments: Vec<Object>) -> Result<Object, EvalErr> {
     for arg in arguments {
         let s;
         if let Object::String(val) = arg {
-            if val == "\\n" {
-                s = "\n".to_string();
-            } else {
-                s = val.to_string();
-            }
+            s = str::replace(&val, "\\n", "\n");
         } else {
             s = format!("{}", arg).to_string();
         }

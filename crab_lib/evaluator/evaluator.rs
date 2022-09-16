@@ -38,7 +38,7 @@ fn eval_statement(statement: &Statement, env: Rc<RefCell<Environment>>) -> Resul
             Ok(Object::Return(Box::new(result)))
         }
         Statement::Return(None) => Ok(Object::Return(Box::new(Object::Null))),
-        Statement::Expression(expr) => eval_expression(expr, env),
+        Statement::Expression(expr) => Ok(eval_expression(expr, env)?),
     }
 }
 
@@ -85,8 +85,8 @@ fn eval_forloop_expression(
         let condition = eval_expression(condition, Rc::clone(&env))?;
         if condition == Object::Boolean(true) {
             rt = eval_block_statement(consequence, Rc::clone(&env))?;
-            if let Object::Return(return_val) = rt {
-                return Ok(*return_val);
+            if let Object::Return(_) = rt {
+                return Ok(rt);
             }
         } else {
             break;
@@ -280,7 +280,7 @@ fn eval_float_infix_expression(infix: &Infix, left: f64, right: f64) -> Result<O
 
 fn eval_string_infix_expression(infix: &Infix, left: &str, right: &str) -> Result<Object, EvalErr> {
     match infix {
-        Infix::Plus => Ok(Object::String([left, right].concat())),
+        Infix::Plus | Infix::PlusEquals => Ok(Object::String([left, right].concat())),
         _ => Err(EvalErr::UnknownInfixOperator(
             infix.clone(),
             Object::String(left.to_string()),

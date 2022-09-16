@@ -12,6 +12,7 @@ use crab_lib::{
 use crate::ferris_str;
 
 pub fn start(path: &str) {
+    let now = Instant::now();
     let data = fs::read_to_string(path).expect("Unable to read file");
     let lexer = Lexer::new(data.clone());
     let mut parser = Parser::new(lexer);
@@ -22,10 +23,8 @@ pub fn start(path: &str) {
         std::process::exit(0);
     }
 
-    let now = Instant::now();
     let env = Rc::new(RefCell::new(Environment::new()));
     let evaluated = evaluator::eval(&parse_res.unwrap(), Rc::clone(&env));
-    let elapsed = now.elapsed();
     match evaluated {
         Ok(res) => {
             if Object::Null != res {
@@ -41,5 +40,6 @@ pub fn start(path: &str) {
             std::process::exit(0);
         }
     }
-    println!("\nFinished evaluation in: {:.2?}", elapsed / 100000);
+    let elapsed = now.elapsed();
+    println!("\nFinished evaluation in: {:.2?}", elapsed);
 }
