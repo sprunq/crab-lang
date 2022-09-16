@@ -12,7 +12,7 @@ use crab_lib::{
     parser::parser::Parser,
 };
 
-use crate::ferris_str;
+use crate::interpret_file::ferris_str;
 
 pub fn start() {
     let env = Rc::new(RefCell::new(Environment::new()));

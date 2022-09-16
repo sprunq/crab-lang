@@ -39,7 +39,7 @@ pub enum Token {
     LBracket,
     RBracket,
     Colon,
-    For,
+    While,
 }
 
 pub fn lookup_ident(ident: &str) -> Token {
@@ -52,7 +52,7 @@ pub fn lookup_ident(ident: &str) -> Token {
         "if" => Some(Token::If),
         "else" => Some(Token::Else),
         "return" => Some(Token::Return),
-        "for" => Some(Token::For),
+        "while" => Some(Token::While),
         _ => None,
     };
     if let Some(token) = token {
@@ -98,7 +98,7 @@ impl fmt::Display for Token {
             Token::Colon => write!(f, ":"),
             Token::Float(float) => write!(f, "{}", float),
             Token::String(s) => write!(f, "\"{}\"", s),
-            Token::For => write!(f, "for"),
+            Token::While => write!(f, "for"),
             Token::PlusEquals => write!(f, "+="),
             Token::MinusEquals => write!(f, "-="),
             Token::SlashEuqals => write!(f, "/="),

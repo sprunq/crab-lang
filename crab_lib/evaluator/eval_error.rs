@@ -17,6 +17,7 @@ pub enum EvalErr {
     UnknownIndexOperator(Object, Object),
     UnsupportedArguments(String, Vec<Object>),
     UnknownInfixOperator(Infix, Object, Object),
+    CannotPerformOperation(String, Object),
 }
 
 impl fmt::Display for EvalErr {
@@ -48,6 +49,9 @@ impl fmt::Display for EvalErr {
             ),
             EvalErr::UnknownInfixOperator(infix, left, right) => {
                 write!(f, "{:?} {:?} {:?}", left, infix, right)
+            }
+            EvalErr::CannotPerformOperation(function, obj) => {
+                write!(f, "{:?} {:?}", function, obj)
             }
         }
     }

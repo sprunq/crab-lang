@@ -73,7 +73,7 @@ fn eval_expression(
             apply_function(function, arguments)
         }
         Expression::StringLiteral(s) => Ok(Object::String(s.to_string())),
-        Expression::ForLoop(condition, consequence) => {
+        Expression::WhileLoop(condition, consequence) => {
             eval_forloop_expression(condition, consequence, env)
         }
         Expression::Assign(ident, op, expr) => eval_assign_expression(ident, op, expr, env),

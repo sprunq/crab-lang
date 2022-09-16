@@ -1,8 +1,5 @@
-// Builtin functions must have a static order in order to have static indices in compiled bytecodes.
-
-use crate::evaluator::eval_error::EvalErr;
-
 use super::object::Object;
+use crate::evaluator::eval_error::EvalErr;
 
 pub struct Builtin {
     pub name: &'static str,
@@ -18,7 +15,7 @@ macro_rules! builtin {
     };
 }
 
-pub const BUILTINS: &[Builtin] = &[builtin!(print), builtin!(exit)];
+pub const BUILTINS: &[Builtin] = &[builtin!(print), builtin!(sqrt), builtin!(exit)];
 
 pub fn lookup(name: &str) -> Option<Object> {
     if name == "null" {
@@ -45,6 +42,23 @@ fn print(arguments: Vec<Object>) -> Result<Object, EvalErr> {
     }
     print!("{}", str);
     Ok(Object::Null)
+}
+
+fn sqrt(arguments: Vec<Object>) -> Result<Object, EvalErr> {
+    if arguments.len() != 1 {
+        return Err(EvalErr::WrongArgumentCount(1, 0));
+    }
+    let arg = arguments.first().unwrap_or(&Object::Null);
+    let input = match arg {
+        Object::Integer(val) => *val as f64,
+        Object::Float(val) => *val,
+        _ => Err(EvalErr::CannotPerformOperation(
+            "srqt".to_string(),
+            arg.clone(),
+        ))?,
+    };
+    let sqrt = input.sqrt();
+    Ok(Object::Float(sqrt))
 }
 
 fn exit(_arguments: Vec<Object>) -> Result<Object, EvalErr> {

@@ -16,7 +16,7 @@ pub enum Expression {
     FunctionLiteral(Vec<String>, BlockStatement),
     FunctionDefineLiteral(String, Vec<String>, BlockStatement),
     Call(Box<Expression>, Vec<Expression>),
-    ForLoop(Box<Expression>, BlockStatement),
+    WhileLoop(Box<Expression>, BlockStatement),
     Assign(String, Infix, Box<Expression>),
 }
 
@@ -53,7 +53,7 @@ impl fmt::Display for Expression {
                         .join(", ")
                 })
             }
-            Expression::ForLoop(condition, consequence) => {
+            Expression::WhileLoop(condition, consequence) => {
                 write!(f, "for ({}) {{{}}}", condition, consequence)
             }
             Expression::Assign(ident, op, expr) => write!(f, "{} {} {}", ident, op, expr),

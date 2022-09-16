@@ -5,4 +5,4 @@ let fib_rec = function(n){
     return fib_rec(n-1) + fib_rec(n-2);
 };
 
-print(fib_rec(25));
+print(fib_rec(10));

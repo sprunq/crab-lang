@@ -1,49 +1,40 @@
-use clap::Parser;
+use clap::{App, Arg, Parser};
 use ferris_says::say;
 use std::fmt;
 pub mod interpret_file;
 pub mod repl;
 
 fn main() {
-    let args = Args::parse();
-    println!("Welcome to crab-lang v0.1\n");
+    let matches = App::new("crab-lang")
+        .version("1.0")
+        .about("The crab language interpreter")
+        .arg(
+            Arg::with_name("FILE_PATH")
+                .short('f')
+                .long("file")
+                .help("The file to interpret")
+                .takes_value(true),
+        )
+        .arg(
+            Arg::with_name("MEASURE_PERFORMANCE")
+                .short('t')
+                .long("time")
+                .help("Measures the execution time of the different stages")
+                .takes_value(false)
+                .default_value("false"),
+        )
+        .get_matches();
 
-    match args.run_mode {
-        RunMode::Repl => repl::start(),
-        RunMode::File => interpret_file::start(&args.path),
-    };
-}
+    let path = matches.value_of("FILE_PATH").unwrap_or("").to_lowercase();
+    let measure_perf = matches
+        .value_of("MEASURE_PERFORMANCE")
+        .unwrap_or("false")
+        .parse::<bool>()
+        .unwrap_or(false);
 
-pub fn ferris_str(input: String) -> String {
-    let mut vec = Vec::new();
-    say(input.as_bytes(), 200, &mut vec).unwrap();
-    let actual = std::str::from_utf8(&vec).unwrap();
-    actual.to_string()
-}
-
-#[derive(Parser, Debug)]
-#[clap(author, version, about, long_about = None)]
-struct Args {
-    /// The path of the file to interpret (has to be in File mode)
-    #[clap(short, long, value_parser, default_value = "examples/input.crab")]
-    path: String,
-
-    /// The mode to run in
-    #[clap(short, long, value_parser, default_value_t = RunMode::File)]
-    run_mode: RunMode,
-}
-
-#[derive(PartialEq, Debug, Clone, clap::ArgEnum)]
-pub enum RunMode {
-    Repl,
-    File,
-}
-
-impl fmt::Display for RunMode {
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        match &self {
-            RunMode::Repl => write!(f, "repl"),
-            RunMode::File => write!(f, "file"),
-        }
+    if path.is_empty() {
+        repl::start()
+    } else {
+        interpret_file::start(&path, measure_perf)
     }
 }

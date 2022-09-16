@@ -1,36 +1,36 @@
-let H = 40; 
-let W = 80;
+let H = 30; 
+let W = 90;
 
-let coord_to_complex_re = function(i){
+fn coord_to_complex_re(i){
     return (4.0*i) / (W-1.0) - 2.0;
 };
 
-let coord_to_complex_im = function(j){
+fn coord_to_complex_im(j){
     return (2.2*j) / (H-1.0) - 1.1;
 };
 
-let sqrt = function(x){
+fn sqrt_o(x){
     let z = 1.0;
     let loop_i = 1;
-    for(loop_i < 15){
+    while(loop_i < 15){
         loop_i += 1;
         z -= (z*z -x) / (2*z);
     }
     return z;
 };
 
-let is_in_mandelbrot = function(re, im){
+fn is_in_mandelbrot(re, im){
     let cr = re;
     let ci = im;
     let zr = cr;
     let zi = ci;
 
     let loop_i = 0;
-    for (loop_i < 1000){
+    while (loop_i < 400){
         zr = (zr*zr - zi*zi) + cr;
         zi = 2*zi*zr + ci;
         let s = sqrt(zr*zr + zi*zi);
-        if( s > 2.0){
+        if( s > 5.0){
             return false;
         };
         loop_i += 1;
@@ -38,13 +38,13 @@ let is_in_mandelbrot = function(re, im){
     return true;
 };
 
-let show_set = function(){
+fn show_set(){
     let ln = "";
     let loop_i = 0;
 
-    for(loop_i < H){
+    while(loop_i < H){
         let loop_j = 0;
-        for(loop_j < W){
+        while(loop_j < W){
             let r = coord_to_complex_re(loop_j);
             let i = coord_to_complex_im(loop_i);
             let iim = is_in_mandelbrot(r, i);

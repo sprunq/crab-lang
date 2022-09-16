@@ -87,7 +87,7 @@ impl Parser {
             Token::If => Some(Parser::parse_if_expression),
             Token::Function => Some(Parser::parse_function_expression),
             Token::DefineFunction => Some(Parser::parse_define_function_expression),
-            Token::For => Some(Parser::parse_forloop_expression),
+            Token::While => Some(Parser::parse_forloop_expression),
             _ => None,
         }
     }
@@ -322,7 +322,7 @@ impl Parser {
         self.expect_peek(Token::RParenthesis, ParseErr::ExpectedRparen)?;
         self.expect_peek(Token::LBrace, ParseErr::ExpectedLbrace)?;
         let consequence = self.parse_block_statement()?;
-        Ok(Expression::ForLoop(Box::new(condition), consequence))
+        Ok(Expression::WhileLoop(Box::new(condition), consequence))
     }
 
     fn parse_function_parameters(&mut self) -> Result<Vec<String>, ParseErr> {
