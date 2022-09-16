@@ -19,14 +19,15 @@ let iterative_fib = function(n){
     let loop_i = 0;
     for(loop_i < n){
         let temp = a;
-        let a = a + b;
-        let b = temp;
-        let loop_i = loop_i + 1;
+        a = a + b;
+        b = temp;
+        loop_i += 1;
     }
     return a;
 };
 
-print(iterative_fib(100));
+print(iterative_fib(10));
+
 ```
 
 ## Benchmark 
