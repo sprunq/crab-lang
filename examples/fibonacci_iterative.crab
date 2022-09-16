@@ -9,7 +9,7 @@ fn iterative_fib(n){
     let loop_i = 0;
     while(loop_i < n){
         let temp = a;
-        a = a + b;
+        a += b;
         b = temp;
         loop_i += 1;
     }

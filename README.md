@@ -8,7 +8,7 @@ A tiny interpreted *crappy* toy language written in Rust.
 ## Iterative Fibonacci Algorithm
 
 ```
-let iterative_fib = function(n){
+fn iterative_fib(n){
     if(n < 0){
         exit();
     }
@@ -17,9 +17,9 @@ let iterative_fib = function(n){
     let b = 1;
 
     let loop_i = 0;
-    for(loop_i < n){
+    while(loop_i < n){
         let temp = a;
-        a = a + b;
+        a += b;
         b = temp;
         loop_i += 1;
     }
@@ -27,7 +27,6 @@ let iterative_fib = function(n){
 };
 
 print(iterative_fib(10));
-
 ```
 
 ## Benchmark 
