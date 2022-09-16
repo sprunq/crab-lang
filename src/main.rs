@@ -1,6 +1,4 @@
-use clap::{App, Arg, Parser};
-use ferris_says::say;
-use std::fmt;
+use clap::{App, Arg};
 pub mod interpret_file;
 pub mod repl;
 
@@ -21,16 +19,12 @@ fn main() {
                 .long("time")
                 .help("Measures the execution time of the different stages")
                 .takes_value(false)
-                .default_value("false"),
+                .required(false),
         )
         .get_matches();
 
     let path = matches.value_of("FILE_PATH").unwrap_or("").to_lowercase();
-    let measure_perf = matches
-        .value_of("MEASURE_PERFORMANCE")
-        .unwrap_or("false")
-        .parse::<bool>()
-        .unwrap_or(false);
+    let measure_perf = matches.is_present("MEASURE_PERFORMANCE");
 
     if path.is_empty() {
         repl::start()
