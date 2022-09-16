@@ -71,6 +71,7 @@ fn eval_expression(
         Expression::ForLoop(condition, consequence) => {
             eval_forloop_expression(condition, consequence, env)
         }
+        Expression::Assign(ident, op, expr) => eval_assign_expression(ident, op, expr, env),
     }
 }
 
@@ -198,28 +199,34 @@ fn eval_infix_expression(
     env: Rc<RefCell<Environment>>,
 ) -> Result<Object, EvalErr> {
     let l_obj = eval_expression(left, Rc::clone(&env))?;
-    let r_obj = eval_expression(right, env)?;
+    let r_obj = eval_expression(right, Rc::clone(&env))?;
 
-    match (l_obj, r_obj) {
-        (Object::Boolean(left), Object::Boolean(right)) => {
-            eval_boolean_infix_expression(infix, left, right)
+    Ok(eval_infix_object(infix, &l_obj, &r_obj)?)
+}
+
+fn eval_infix_object(infix: &Infix, left: &Object, right: &Object) -> Result<Object, EvalErr> {
+    match (left, right) {
+        (Object::Boolean(l_o), Object::Boolean(r_o)) => {
+            eval_boolean_infix_expression(infix, *l_o, *r_o)
         }
-        (Object::Integer(left), Object::Integer(right)) => {
-            eval_integer_infix_expression(infix, left, right)
+        (Object::Integer(l_o), Object::Integer(r_o)) => {
+            eval_integer_infix_expression(infix, *l_o, *r_o)
         }
-        (Object::Integer(left), Object::Float(right)) => {
-            eval_float_infix_expression(infix, left as f64, right)
+        (Object::Integer(l_o), Object::Float(r_o)) => {
+            eval_float_infix_expression(infix, *l_o as f64, *r_o)
         }
-        (Object::Float(left), Object::Integer(right)) => {
-            eval_float_infix_expression(infix, left, right as f64)
+        (Object::Float(l_o), Object::Integer(r_o)) => {
+            eval_float_infix_expression(infix, *l_o, *r_o as f64)
         }
-        (Object::Float(left), Object::Float(right)) => {
-            eval_float_infix_expression(infix, left, right)
+        (Object::Float(l_o), Object::Float(r_o)) => eval_float_infix_expression(infix, *l_o, *r_o),
+        (Object::String(l_o), Object::String(r_o)) => {
+            eval_string_infix_expression(infix, &l_o, &r_o)
         }
-        (Object::String(left), Object::String(right)) => {
-            eval_string_infix_expression(infix, &left, &right)
-        }
-        (left, right) => Err(EvalErr::IncompatibleTypes(infix.clone(), left, right)),
+        (l_o, r_o) => Err(EvalErr::IncompatibleTypes(
+            infix.clone(),
+            l_o.clone(),
+            r_o.clone(),
+        )),
     }
 }
 
@@ -237,20 +244,38 @@ fn eval_integer_infix_expression(
         Infix::Minus => Ok(Object::Integer(left - right)),
         Infix::Asterisk => Ok(Object::Integer(left * right)),
         Infix::Slash => Ok(Object::Integer(left / right)),
+        Infix::PlusEquals => Ok(Object::Integer(left + right)),
+        Infix::MinusEquals => Ok(Object::Integer(left - right)),
+        Infix::SlashEuqals => Ok(Object::Integer(left / right)),
+        Infix::AsteriskEquals => Ok(Object::Integer(left * right)),
+        _ => Err(EvalErr::UnknownInfixOperator(
+            infix.clone(),
+            Object::Integer(left),
+            Object::Integer(right),
+        )),
     }
 }
 
 fn eval_float_infix_expression(infix: &Infix, left: f64, right: f64) -> Result<Object, EvalErr> {
-    Ok(match infix {
-        Infix::Eq => Object::Boolean(left == right),
-        Infix::NotEq => Object::Boolean(left != right),
-        Infix::Lt => Object::Boolean(left < right),
-        Infix::Gt => Object::Boolean(left > right),
-        Infix::Plus => Object::Float(left + right),
-        Infix::Minus => Object::Float(left - right),
-        Infix::Asterisk => Object::Float(left * right),
-        Infix::Slash => Object::Float(left / right),
-    })
+    match infix {
+        Infix::Eq => Ok(Object::Boolean(left == right)),
+        Infix::NotEq => Ok(Object::Boolean(left != right)),
+        Infix::Lt => Ok(Object::Boolean(left < right)),
+        Infix::Gt => Ok(Object::Boolean(left > right)),
+        Infix::Plus => Ok(Object::Float(left + right)),
+        Infix::Minus => Ok(Object::Float(left - right)),
+        Infix::Asterisk => Ok(Object::Float(left * right)),
+        Infix::Slash => Ok(Object::Float(left / right)),
+        Infix::PlusEquals => Ok(Object::Float(left + right)),
+        Infix::MinusEquals => Ok(Object::Float(left - right)),
+        Infix::SlashEuqals => Ok(Object::Float(left / right)),
+        Infix::AsteriskEquals => Ok(Object::Float(left * right)),
+        _ => Err(EvalErr::UnknownInfixOperator(
+            infix.clone(),
+            Object::Float(left),
+            Object::Float(right),
+        )),
+    }
 }
 
 fn eval_string_infix_expression(infix: &Infix, left: &str, right: &str) -> Result<Object, EvalErr> {
@@ -278,4 +303,44 @@ fn eval_boolean_infix_expression(
             Object::Boolean(right),
         )),
     }
+}
+
+fn eval_assign_expression(
+    ident: &str,
+    op: &Infix,
+    expr: &Expression,
+    env: Rc<RefCell<Environment>>,
+) -> Result<Object, EvalErr> {
+    let current = eval_identifier(ident, Rc::clone(&env))?;
+    let evaluated = eval_expression(expr, Rc::clone(&env))?;
+
+    match op {
+        Infix::Assign => {
+            env.borrow_mut().set(ident, evaluated.clone());
+        }
+        Infix::PlusEquals => {
+            let res = eval_infix_object(&Infix::PlusEquals, &current, &evaluated)?;
+            env.borrow_mut().set(ident, res);
+        }
+        Infix::MinusEquals => {
+            let res = eval_infix_object(&Infix::MinusEquals, &current, &evaluated)?;
+            env.borrow_mut().set(ident, res);
+        }
+        Infix::AsteriskEquals => {
+            let res = eval_infix_object(&Infix::AsteriskEquals, &current, &evaluated)?;
+            env.borrow_mut().set(ident, res);
+        }
+        Infix::SlashEuqals => {
+            let res = eval_infix_object(&Infix::SlashEuqals, &current, &evaluated)?;
+            env.borrow_mut().set(ident, res);
+        }
+        _ => {
+            return Err(EvalErr::UnknownInfixOperator(
+                op.clone(),
+                current,
+                evaluated,
+            ))
+        }
+    };
+    Ok(evaluated)
 }

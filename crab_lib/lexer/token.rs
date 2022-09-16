@@ -22,6 +22,10 @@ pub enum Token {
     Else,
     Return,
     Assign,
+    PlusEquals,
+    MinusEquals,
+    SlashEuqals,
+    AsteriskEquals,
     Plus,
     Minus,
     Bang,
@@ -92,6 +96,10 @@ impl fmt::Display for Token {
             Token::Float(float) => write!(f, "{}", float),
             Token::String(s) => write!(f, "\"{}\"", s),
             Token::For => write!(f, "for"),
+            Token::PlusEquals => write!(f, "+="),
+            Token::MinusEquals => write!(f, "-="),
+            Token::SlashEuqals => write!(f, "/="),
+            Token::AsteriskEquals => write!(f, "*="),
         }
     }
 }

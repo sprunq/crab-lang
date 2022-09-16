@@ -22,6 +22,7 @@ pub enum ParseErr {
     ExpectedColon(Token, Position),
     ParseInt(String, Position),
     ParseFloat(String, Position),
+    UnsupportedInfixToken(Token, Position),
 }
 
 impl fmt::Display for ParseErr {
@@ -63,6 +64,9 @@ impl fmt::Display for ParseErr {
             ParseErr::ExpectedColon(val, pos) => write!(f, "{}", format_token("Colon", val, pos)),
             ParseErr::ParseInt(val, pos) => write!(f, "{}", format_str("Int", val, pos)),
             ParseErr::ParseFloat(val, pos) => write!(f, "{}", format_str("Float", val, pos)),
+            ParseErr::UnsupportedInfixToken(val, pos) => {
+                write!(f, "{}", format_token("=,+=,*=,/=", val, pos))
+            }
         }
     }
 }

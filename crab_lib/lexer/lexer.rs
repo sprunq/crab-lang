@@ -31,10 +31,6 @@ impl Lexer {
         self.skip_whitespace();
         let tok: Token;
         match self.character {
-            '+' => tok = Token::Plus,
-            '-' => tok = Token::Minus,
-            '/' => tok = Token::Slash,
-            '*' => tok = Token::Asterisk,
             '<' => tok = Token::Lt,
             '>' => tok = Token::Gt,
             ';' => tok = Token::Semicolon,
@@ -72,6 +68,38 @@ impl Lexer {
                         Token::Bang
                     }
                 };
+            }
+            '+' => {
+                tok = if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::PlusEquals
+                } else {
+                    Token::Plus
+                }
+            }
+            '-' => {
+                tok = if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::MinusEquals
+                } else {
+                    Token::Minus
+                }
+            }
+            '/' => {
+                tok = if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::SlashEuqals
+                } else {
+                    Token::Slash
+                }
+            }
+            '*' => {
+                tok = if self.peek_char() == '=' {
+                    self.read_char();
+                    Token::AsteriskEquals
+                } else {
+                    Token::Asterisk
+                }
             }
             _ => {
                 if Self::is_letter(self.character) {

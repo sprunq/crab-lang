@@ -101,6 +101,11 @@ impl Parser {
             | Token::NotEqual
             | Token::Lt
             | Token::Gt => Some(Parser::parse_infix_expression),
+            Token::Assign
+            | Token::PlusEquals
+            | Token::MinusEquals
+            | Token::SlashEuqals
+            | Token::AsteriskEquals => Some(Parser::parse_assign_expression),
             Token::LParenthesis => Some(Parser::parse_call_expression),
             _ => None,
         }
@@ -129,6 +134,11 @@ impl Parser {
             Token::Asterisk => (Precedence::Product, Some(Infix::Asterisk)),
             Token::LParenthesis => (Precedence::Call, None),
             Token::LBracket => (Precedence::Index, None),
+            Token::Assign => (Precedence::Assign, Some(Infix::Assign)),
+            Token::PlusEquals => (Precedence::Assign, Some(Infix::PlusEquals)),
+            Token::MinusEquals => (Precedence::Assign, Some(Infix::MinusEquals)),
+            Token::SlashEuqals => (Precedence::Assign, Some(Infix::SlashEuqals)),
+            Token::AsteriskEquals => (Precedence::Assign, Some(Infix::AsteriskEquals)),
             _ => (Precedence::Lowest, None),
         }
     }
@@ -150,6 +160,35 @@ impl Parser {
             }
         }
         Ok(left_expr)
+    }
+
+    fn parse_assign_expression(&mut self, left: Expression) -> Result<Expression, ParseErr> {
+        let name = {
+            if let Expression::Identifier(ident) = left {
+                Ok(ident.to_string())
+            } else {
+                Err(ParseErr::ExpectedIdentifierToken(
+                    self.current_token.clone(),
+                    self.peek_token_pos,
+                ))
+            }
+        }?;
+        let operator = match self.current_token {
+            Token::Assign => Infix::Assign,
+            Token::PlusEquals => Infix::PlusEquals,
+            Token::MinusEquals => Infix::MinusEquals,
+            Token::AsteriskEquals => Infix::AsteriskEquals,
+            Token::SlashEuqals => Infix::SlashEuqals,
+            _ => {
+                return Err(ParseErr::UnsupportedInfixToken(
+                    self.current_token.clone(),
+                    self.peek_token_pos,
+                ))
+            }
+        };
+        self.next_token();
+        let value = self.parse_expression(Precedence::Lowest)?;
+        Ok(Expression::Assign(name, operator, Box::new(value)))
     }
 
     fn parse_let_statement(&mut self) -> Result<Statement, ParseErr> {

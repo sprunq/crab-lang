@@ -25,7 +25,7 @@ pub fn ferris_str(input: String) -> String {
 #[clap(author, version, about, long_about = None)]
 struct Args {
     /// The path of the file to interpret (has to be in File mode)
-    #[clap(short, long, value_parser, default_value = "res/input.crab")]
+    #[clap(short, long, value_parser, default_value = "examples/input.crab")]
     path: String,
 
     /// The mode to run in
