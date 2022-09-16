@@ -1,14 +1,5 @@
-let fun = function(){
-    let l_i = 0;
-    for(l_i < 10){
-        if(2.2523387730661766 > 2){
-            print(true, "\n");
-            return true;
-        }
-        print(false, "\n");
-        return false;
-        l_i +=1;
-    };
-};
+fn print_hello_world(x){
+    print("hello world ", x);
+}
 
-print(fun());
+print_hello_world(100);

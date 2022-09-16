@@ -15,6 +15,7 @@ pub enum Token {
     LBrace,
     RBrace,
     Function,
+    DefineFunction,
     Let,
     True,
     False,
@@ -44,6 +45,7 @@ pub enum Token {
 pub fn lookup_ident(ident: &str) -> Token {
     let token = match ident {
         "function" => Some(Token::Function),
+        "fn" => Some(Token::DefineFunction),
         "let" => Some(Token::Let),
         "true" => Some(Token::True),
         "false" => Some(Token::False),
@@ -75,7 +77,8 @@ impl fmt::Display for Token {
             Token::RParenthesis => write!(f, ")"),
             Token::LBrace => write!(f, "{{"),
             Token::RBrace => write!(f, "}}"),
-            Token::Function => write!(f, "fn"),
+            Token::Function => write!(f, "function"),
+            Token::DefineFunction => write!(f, "fn"),
             Token::Let => write!(f, "let"),
             Token::Minus => write!(f, "-"),
             Token::Bang => write!(f, "!"),

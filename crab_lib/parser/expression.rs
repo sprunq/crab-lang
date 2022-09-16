@@ -14,6 +14,7 @@ pub enum Expression {
     If(Box<Expression>, BlockStatement, Option<BlockStatement>),
     Empty,
     FunctionLiteral(Vec<String>, BlockStatement),
+    FunctionDefineLiteral(String, Vec<String>, BlockStatement),
     Call(Box<Expression>, Vec<Expression>),
     ForLoop(Box<Expression>, BlockStatement),
     Assign(String, Infix, Box<Expression>),
@@ -39,6 +40,9 @@ impl fmt::Display for Expression {
             }
             Expression::FunctionLiteral(parameters, body) => {
                 write!(f, "function({}) {}", parameters.join(", "), body)
+            }
+            Expression::FunctionDefineLiteral(name, parameters, body) => {
+                write!(f, "fn {}({}) {}", name, parameters.join(", "), body)
             }
             Expression::Call(function, arguments) => {
                 write!(f, "{}({})", function, {

@@ -62,6 +62,11 @@ fn eval_expression(
         Expression::FunctionLiteral(params, body) => {
             Ok(Object::Function(params.to_vec(), body.clone(), env))
         }
+        Expression::FunctionDefineLiteral(name, params, body) => {
+            let function = Object::Function(params.to_vec(), body.clone(), Rc::clone(&env));
+            env.borrow_mut().set(name, function);
+            Ok(Object::Null)
+        }
         Expression::Call(func, args) => {
             let function = eval_expression(func, Rc::clone(&env))?;
             let arguments = eval_expressions(args, env)?;
