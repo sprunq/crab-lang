@@ -146,7 +146,7 @@ fn eval_identifier(name: &str, env: Rc<RefCell<Environment>>) -> Result<Object, 
     if let Some(obj) = env.borrow().get(name) {
         return Ok(obj);
     }
-    if let Some(obj) = builtin::lookup(name) {
+    if let Some(obj) = builtin::lookup_fn(name) {
         return Ok(obj);
     }
     Err(EvalErr::IdentifierNotFound(name.to_string()))

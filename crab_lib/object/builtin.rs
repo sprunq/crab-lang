@@ -15,13 +15,13 @@ macro_rules! builtin {
     };
 }
 
-pub const BUILTINS: &[Builtin] = &[builtin!(print), builtin!(sqrt), builtin!(exit)];
+pub const BUILTIN_FUNCTIONS: &[Builtin] = &[builtin!(print), builtin!(sqrt), builtin!(exit)];
 
-pub fn lookup(name: &str) -> Option<Object> {
+pub fn lookup_fn(name: &str) -> Option<Object> {
     if name == "null" {
         return Some(Object::Null);
     }
-    for b in BUILTINS {
+    for b in BUILTIN_FUNCTIONS {
         if b.name == name {
             return Some(b.builtin.clone());
         }
@@ -29,9 +29,9 @@ pub fn lookup(name: &str) -> Option<Object> {
     None
 }
 
-fn print(arguments: Vec<Object>) -> Result<Object, EvalErr> {
+fn print(args: Vec<Object>) -> Result<Object, EvalErr> {
     let mut str = "".to_string();
-    for arg in arguments {
+    for arg in args {
         let s;
         if let Object::String(val) = arg {
             s = str::replace(&val, "\\n", "\n");
@@ -44,11 +44,11 @@ fn print(arguments: Vec<Object>) -> Result<Object, EvalErr> {
     Ok(Object::Null)
 }
 
-fn sqrt(arguments: Vec<Object>) -> Result<Object, EvalErr> {
-    if arguments.len() != 1 {
+fn sqrt(args: Vec<Object>) -> Result<Object, EvalErr> {
+    if args.len() != 1 {
         return Err(EvalErr::WrongArgumentCount(1, 0));
     }
-    let arg = arguments.first().unwrap_or(&Object::Null);
+    let arg = args.first().unwrap_or(&Object::Null);
     let input = match arg {
         Object::Integer(val) => *val as f64,
         Object::Float(val) => *val,
@@ -61,6 +61,6 @@ fn sqrt(arguments: Vec<Object>) -> Result<Object, EvalErr> {
     Ok(Object::Float(sqrt))
 }
 
-fn exit(_arguments: Vec<Object>) -> Result<Object, EvalErr> {
+fn exit(_: Vec<Object>) -> Result<Object, EvalErr> {
     std::process::exit(0);
 }
