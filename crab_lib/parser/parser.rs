@@ -1,15 +1,14 @@
-use crate::lexer::{
-    lexer::{Lexer, Position},
-    token::Token,
-};
-
-use super::{
+use super::parse_error::ParseErr;
+use crate::ast::{
     expression::Expression,
     infix::Infix,
-    parse_error::ParseErr,
     precedence::Precedence,
     prefix::Prefix,
     statement::{BlockStatement, Program, Statement},
+};
+use crate::lexer::{
+    lexer::{Lexer, Position},
+    token::Token,
 };
 
 type PrefixParseFn = fn(&mut Parser) -> Result<Expression, ParseErr>;
@@ -166,7 +165,7 @@ impl Parser {
     fn parse_assign_expression(&mut self, left: Expression) -> Result<Expression, ParseErr> {
         let name = {
             if let Expression::Identifier(ident) = left {
-                Ok(ident.to_string())
+                Ok(ident)
             } else {
                 Err(ParseErr::ExpectedIdentifierToken(
                     self.current_token.clone(),

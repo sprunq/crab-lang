@@ -1,8 +1,8 @@
 use std::fmt;
 
 use crate::{
+    ast::{infix::Infix, prefix::Prefix},
     object::object::Object,
-    parser::{infix::Infix, prefix::Prefix},
 };
 
 #[derive(Debug, Clone, PartialEq)]

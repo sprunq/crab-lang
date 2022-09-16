@@ -12,7 +12,7 @@ use ferris_says::say;
 
 pub fn start(path: &str, measure_time: bool) {
     let data = fs::read_to_string(path).expect("Unable to read file");
-    let lexer = Lexer::new(data.clone());
+    let lexer = Lexer::new(data);
     let mut parser = Parser::new(lexer);
 
     let mut now = Instant::now();

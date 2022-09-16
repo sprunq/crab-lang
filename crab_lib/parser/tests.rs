@@ -1,10 +1,9 @@
 #[cfg(test)]
 pub mod tests {
 
-    use crate::{
-        lexer::lexer::Lexer,
-        parser::{expression::Expression, infix::Infix, parser::Parser, statement::Statement},
-    };
+    use crate::ast::{expression::Expression, infix::Infix, statement::Statement};
+    use crate::lexer::lexer::Lexer;
+    use crate::parser::parser::Parser;
 
     fn check_str_str_eq(intput_output: Vec<(&str, &str)>) {
         for (input, expected) in intput_output {

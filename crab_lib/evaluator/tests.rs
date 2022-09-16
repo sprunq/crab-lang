@@ -2,13 +2,14 @@
 pub mod tests {
     use std::{cell::RefCell, rc::Rc};
 
-    use crate::parser::expression::Expression;
-    use crate::parser::statement::{BlockStatement, Statement};
+    use crate::ast::expression::Expression;
+    use crate::ast::statement::{BlockStatement, Statement};
+    use crate::parser::parser::Parser;
     use crate::{
+        ast::{infix::Infix, prefix::Prefix},
         evaluator::{eval_error::EvalErr, evaluator::eval},
         lexer::lexer::Lexer,
         object::{environment::Environment, object::Object},
-        parser::{infix::Infix, parser::Parser, prefix::Prefix},
     };
 
     fn eval_input(input: &str) -> Result<Object, EvalErr> {

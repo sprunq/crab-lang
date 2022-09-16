@@ -1,13 +1,13 @@
 use std::{cell::RefCell, rc::Rc};
 
 use crate::{
-    object::{builtin, environment::Environment, object::Object},
-    parser::{
+    ast::{
         expression::Expression,
         infix::Infix,
         prefix::Prefix,
         statement::{BlockStatement, Program, Statement},
     },
+    object::{builtin, environment::Environment, object::Object},
 };
 
 use super::eval_error::EvalErr;
@@ -206,7 +206,7 @@ fn eval_infix_expression(
     let l_obj = eval_expression(left, Rc::clone(&env))?;
     let r_obj = eval_expression(right, Rc::clone(&env))?;
 
-    Ok(eval_infix_object(infix, &l_obj, &r_obj)?)
+    eval_infix_object(infix, &l_obj, &r_obj)
 }
 
 fn eval_infix_object(infix: &Infix, left: &Object, right: &Object) -> Result<Object, EvalErr> {
@@ -224,9 +224,7 @@ fn eval_infix_object(infix: &Infix, left: &Object, right: &Object) -> Result<Obj
             eval_float_infix_expression(infix, *l_o, *r_o as f64)
         }
         (Object::Float(l_o), Object::Float(r_o)) => eval_float_infix_expression(infix, *l_o, *r_o),
-        (Object::String(l_o), Object::String(r_o)) => {
-            eval_string_infix_expression(infix, &l_o, &r_o)
-        }
+        (Object::String(l_o), Object::String(r_o)) => eval_string_infix_expression(infix, l_o, r_o),
         (l_o, r_o) => Err(EvalErr::IncompatibleTypes(
             infix.clone(),
             l_o.clone(),

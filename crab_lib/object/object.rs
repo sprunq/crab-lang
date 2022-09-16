@@ -1,8 +1,8 @@
 use std::{cell::RefCell, fmt, rc::Rc};
 
 use crate::{
+    ast::{prefix::Prefix, statement::BlockStatement},
     evaluator::eval_error::EvalErr,
-    parser::{prefix::Prefix, statement::BlockStatement},
 };
 
 use super::environment::Environment;
